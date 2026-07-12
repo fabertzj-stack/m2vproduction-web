@@ -25,7 +25,7 @@ export function resolveCanonical(path: string): string {
   return `${SITE_URL}${clean}`;
 }
 
-export function resolveOgImage(path: string, ogImage?: string): string {
+export function resolveOgImage(ogImage?: string): string {
   return `${SITE_URL}${ogImage ?? DEFAULT_OG_IMAGE}`;
 }
 

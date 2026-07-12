@@ -19,14 +19,14 @@ const { services, locations } = Astro.props;
   <div class="filter-group">
     <span class="group-label">Service</span>
     <button type="button" class="filter-btn active" data-filter-type="service" data-filter-value="all">All</button>
-    {services.map((s) => (
+    {services.map((s: FilterOption) => (
       <button type="button" class="filter-btn" data-filter-type="service" data-filter-value={s.value}>{s.label}</button>
     ))}
   </div>
   <div class="filter-group">
     <span class="group-label">Location</span>
     <button type="button" class="filter-btn active" data-filter-type="location" data-filter-value="all">All</button>
-    {locations.map((l) => (
+    {locations.map((l: FilterOption) => (
       <button type="button" class="filter-btn" data-filter-type="location" data-filter-value={l.value}>{l.label}</button>
     ))}
   </div>

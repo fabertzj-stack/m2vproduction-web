@@ -23,7 +23,7 @@ const { projects } = Astro.props;
 ---
 
 <div class="work-grid" id="work-grid">
-  {projects.map((p) => (
+  {projects.map((p: WorkGridProject) => (
     <div class="grid-cell" data-service={p.service} data-location={p.location}>
       <ProjectCard {...p} />
     </div>

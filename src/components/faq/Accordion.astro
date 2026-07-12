@@ -24,7 +24,7 @@ const { items, groupName = "faq-group" } = Astro.props;
 ---
 
 <div class="accordion">
-  {items.map((item, i) => (
+  {items.map((item: FaqItem, i: number) => (
     <AccordionItem question={item.question} open={i === 0} name={groupName}>
       <p set:html={item.answer} />
     </AccordionItem>

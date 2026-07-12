@@ -16,7 +16,7 @@ const { steps } = Astro.props;
 ---
 
 <ol class="timeline">
-  {steps.map((step, i) => (
+  {steps.map((step: TimelineStep, i: number) => (
     <li class="step">
       <div class="marker">
         <span class="number">{String(i + 1).padStart(2, "0")}</span>

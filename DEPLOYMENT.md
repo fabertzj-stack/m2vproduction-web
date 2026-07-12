@@ -1,20 +1,29 @@
 # Deployment Guide
 
-## 1. Environment setup
+## 1. Deploy to Vercel (the intended path)
 
-Requires Node 18.17+ (Astro 4 minimum) — Node 20 LTS recommended.
+1. Push this repository to GitHub (create a new repo, or upload the files directly
+   through GitHub's web UI if you'd rather not use git locally).
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
+3. Vercel reads `vercel.json` and detects Astro automatically — no build settings to
+   fill in. Click **Deploy**.
 
-```bash
-npm install
-cp .env.example .env
-```
+The first deploy will succeed and the site will be live — with placeholder content
+and every unverified fact clearly marked (see README.md "Content Rules"), not with
+real client-ready content. From then on:
 
-Fill in `.env` with real values before the site can send form notifications or load
-analytics. See the comments in `.env.example` for what each variable is for. Never
-commit a real `.env` file — in production, set these as encrypted environment
-variables on your hosting platform instead.
+- Every push to `main` triggers a new production deploy automatically.
+- Every pull request gets its own preview deployment with a unique URL — useful for
+  reviewing content or copy changes before merging.
+- `.github/workflows/ci.yml` runs in parallel on GitHub (type-check + build) as an
+  independent safety net — it does not control the Vercel deploy, Vercel builds the
+  project itself using the same `npm run build` command.
 
-Minimum required for forms to actually deliver:
+### Environment variables (set in Vercel, not in this repo)
+
+In the Vercel project: **Settings → Environment Variables**. Copy every key from
+`.env.example` and fill in real values — most importantly, for the contact forms to
+actually deliver:
 
 - `FORM_NOTIFICATION_EMAIL_TO` — a real, monitored inbox (confirm per Phase C item 11)
 - `FORM_NOTIFICATION_EMAIL_FROM` — a verified sending address for your email provider
@@ -23,30 +32,53 @@ Minimum required for forms to actually deliver:
 
 Without these, forms still validate and accept submissions correctly — they just skip
 sending the notification email and log a warning server-side. This is intentional: a
-missing integration should never break the visitor-facing experience.
+missing integration should never break the visitor-facing experience. Analytics
+variables (`PUBLIC_GA4_MEASUREMENT_ID` etc.) can stay as placeholders until real
+tracking IDs exist — they're gated behind cookie consent and unused until then.
 
-## 2. Build
+### Custom domain
+
+Once the production domain is confirmed, add it under **Settings → Domains** in
+Vercel, and update `siteMeta.url` in `src/data/siteConfig.ts` and `site` in
+`astro.config.mjs` to match — both are currently marked TODO and pointed at
+`https://www.m2vproduction.co.tz`. This value is baked into canonical URLs, Open
+Graph tags, the sitemap, and the RSS feed, so it should be correct before launch.
+
+## 2. Local development
+
+Requires Node 18.17+ (Astro 4 minimum) — Node 20 LTS recommended (matches
+`.github/workflows/ci.yml` and `package.json`'s `engines` field).
+
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
+
+## 3. Build
 
 ```bash
 npm run build
 ```
 
 This runs `astro check && astro build` — type-checking first, then the production
-build to `dist/`.
+build (via the `@astrojs/vercel` adapter) to `.vercel/output/`.
 
 **Important — sandbox limitation disclosure:** this project was built in an
 environment with no npm registry access, so `npm install`, `astro check` and
-`astro build` have never actually been run against this code. Verification here used
-a manual methodology instead: bracket-balance checks on every `.astro`/`.ts` file's
-frontmatter and script blocks, `node --check` against TypeScript-annotation-stripped
-copies of every inline script and API route, and YAML/JSON parsing for content and
-config files. This catches most syntax errors but **cannot catch real TypeScript type
-errors, Astro compiler errors, or Zod schema violations in content files.** Running
-`npm install && npm run build` on a real machine is a required step before this can be
-considered launch-ready — see the Final QA Report for the full list of what's
-verified vs. what still needs a real build to confirm.
+`astro build` have never actually been run against this code inside that session. In
+place of a real compile, every file was verified using a manual methodology: bracket-
+balance checks on every `.astro`/`.ts` file's frontmatter and script blocks, `node
+--check` against TypeScript-annotation-stripped copies of every inline script and API
+route, YAML/JSON parsing for content and config files, and a full import-resolution
+and internal-link sweep across the codebase (all passed). This catches most syntax
+errors but **cannot catch real TypeScript type errors, Astro compiler errors, or Zod
+schema violations in content files.** The first real build will happen either in
+GitHub Actions CI or in Vercel's own build step — check both for errors after the
+first push, and treat that as the actual verification gate before considering this
+launch-ready.
 
-## 3. Test
+## 4. Test
 
 ```bash
 npm run preview       # serve the production build locally
@@ -63,74 +95,57 @@ Manual testing still required before launch, since none of it can be done in thi
 sandbox:
 
 - Real Lighthouse run (target: 95+ performance, and Core Web Vitals: LCP < 2.5s,
-  CLS < 0.1, INP < 200ms) — cannot be measured without a real browser and network.
+  CLS < 0.1, INP < 200ms) — run this against the live Vercel preview URL once deployed.
 - Real screen reader pass (NVDA, JAWS, VoiceOver) — automated tools (axe) catch a
   meaningful subset of accessibility issues but not all of them.
 - Cross-browser check (Chrome, Safari, Firefox, Edge) and real mobile device testing.
 - Manual keyboard-only walkthrough of every form and the mobile nav.
 
-## 4. Production deployment
+## 5. Security headers
 
-This project targets `output: "hybrid"` with the `@astrojs/node` adapter in
-"standalone" mode (see `astro.config.mjs`) — every page is static except `/api/*`,
-which needs a running Node process to handle requests.
-
-**Option A — Node hosting (Railway, Render, Fly.io, a VPS, etc.):**
-```bash
-npm run build
-node ./dist/server/entry.mjs
-```
-Set `PORT` and `HOST` env vars per your host's requirements (see `@astrojs/node` docs).
-
-**Option B — Vercel/Netlify/Cloudflare:** swap `@astrojs/node` for the platform's
-official Astro adapter (`@astrojs/vercel`, `@astrojs/netlify`, `@astrojs/cloudflare`)
-in `astro.config.mjs`. Nothing else in the codebase needs to change — every route's
-actual logic lives in `src/lib/*.ts` and the page files themselves, not in the adapter
-config. This is a deliberate architecture choice so the hosting platform can be
-decided later without a rewrite.
-
-### Security headers
-
-Two layers, because most pages are static and only `/api/*` runs through the Node
-process at request time:
+Two layers, because most pages are static and only `/api/*` runs through a serverless
+function at request time:
 
 1. **`src/middleware.ts`** — sets `X-Content-Type-Options`, `Referrer-Policy` and
-   `X-Frame-Options` on every response this Node process actually handles. In
-   `output: "hybrid"`, that's the `/api/*` routes only — Astro middleware does not run
-   for prerendered static pages, since those are just files served by the host.
-2. **`public/_headers`** — Netlify/Cloudflare Pages read this file automatically and
-   apply the full header set (including CSP, HSTS and Permissions-Policy) to every
-   static route. If deploying elsewhere, replicate the same headers from that file at
-   the host layer:
-   - **Vercel:** add a `headers` array to `vercel.json`.
-   - **nginx / a VPS:** `add_header` directives in the server block.
-   - **Cloudflare (non-Pages, e.g. a Worker in front of another origin):** a
-     Transform Rule or Worker script setting response headers.
+   `X-Frame-Options` on every response the Vercel serverless function actually
+   handles. In `output: "hybrid"`, that's the `/api/*` routes only — Astro middleware
+   does not run for prerendered static pages, since those are served directly from
+   Vercel's edge network as files.
+2. **`vercel.json`** — its `headers` array applies the full header set (including CSP,
+   HSTS and Permissions-Policy) to every route Vercel serves, static or not. This is
+   the authoritative set for this deployment target.
 
-The CSP in `public/_headers` uses `script-src 'self'` with no `'unsafe-inline'` — this
-works because Astro bundles every component `<script>` block into an external,
-same-origin file by default (script hoisting), rather than emitting inline
-`<script>` tags. If a future change adds `is:inline` to any script, or a third-party
-snippet that must run inline, the CSP will need a nonce or hash added alongside it —
-don't loosen it to `'unsafe-inline'` as the default fix.
+`public/_headers` (Netlify/Cloudflare Pages format) carries the same header set for
+portability, in case this project is ever moved off Vercel — see "Deploying elsewhere"
+below. It has no effect on Vercel itself.
 
-### DNS / domain
+The CSP uses `script-src 'self'` with no `'unsafe-inline'` — this works because Astro
+bundles every component `<script>` block into an external, same-origin file by
+default (script hoisting), rather than emitting inline `<script>` tags. If a future
+change adds `is:inline` to any script, or a third-party snippet that must run inline,
+the CSP will need a nonce or hash added alongside it — don't loosen it to
+`'unsafe-inline'` as the default fix.
 
-`siteMeta.url` in `src/data/siteConfig.ts` and `site` in `astro.config.mjs` both
-currently point at `https://www.m2vproduction.co.tz` marked TODO — confirm this is the
-real production domain before launch, since it's baked into canonical URLs, Open
-Graph tags, the sitemap, and the RSS feed.
+## 6. Deploying elsewhere instead of Vercel
 
-### Pre-launch checklist (see also `M2VPRODUCTION_PhaseI_Launch_Checklist.docx`)
+Swap `@astrojs/vercel` in `astro.config.mjs` for the target platform's official Astro
+adapter — `@astrojs/netlify`, `@astrojs/cloudflare`, or `@astrojs/node` for a plain
+Node host/VPS. Nothing else in the codebase needs to change: every route's actual
+logic lives in `src/lib/*.ts` and the page files themselves, not in the adapter
+config. Replicate the headers from `public/_headers` (already in the right format for
+Netlify/Cloudflare Pages) or `vercel.json` at whatever layer the new platform expects
+(e.g. `add_header` directives for nginx).
 
-- [ ] Run `npm install && npm run build` on a real machine — resolve any TypeScript/Astro errors surfaced
+## 7. Pre-launch checklist (see also `M2VPRODUCTION_PhaseI_Launch_Checklist.docx`)
+
+- [ ] Push to GitHub, import to Vercel, click Deploy — confirm the first build actually succeeds and resolve any TypeScript/Astro errors surfaced
 - [ ] Populate `public/favicons/` and `public/og/` with real brand assets (see Phase B)
 - [ ] Replace every `/TODO-...` image path in content collections with real assets
 - [ ] Resolve every item in `M2VPRODUCTION_PhaseC_Missing_Information_Audit.docx` and flip the corresponding `verified` flags in `siteConfig.ts` / content collections
-- [ ] Set real environment variables on the hosting platform (never commit `.env`)
-- [ ] Confirm production domain and update `siteMeta.url` / `astro.config.mjs` `site` if different
+- [ ] Set real environment variables in Vercel (never commit `.env`)
+- [ ] Confirm production domain, add it in Vercel, and update `siteMeta.url` / `astro.config.mjs` `site` if different
 - [ ] Legal review of `src/pages/legal/*.astro` — currently structural drafts, not attorney-reviewed
-- [ ] Run Lighthouse, axe DevTools, and real screen reader/keyboard testing
+- [ ] Run Lighthouse, axe DevTools, and real screen reader/keyboard testing against the live Vercel URL
 - [ ] Confirm analytics IDs (GA4/GTM/Meta Pixel/LinkedIn) and verify they only load after cookie consent
-- [ ] Point `RATE_LIMIT_*` at a shared store (Upstash Redis or similar) if deploying to a multi-instance serverless host — see `src/lib/rateLimit.ts`
+- [ ] Point `RATE_LIMIT_*` at a shared store (Upstash Redis, available directly via the Vercel Marketplace) — Vercel serverless functions are multi-instance, so the in-memory limiter in `src/lib/rateLimit.ts` won't enforce a true global limit as-is
 - [ ] Submit `sitemap.xml` to Google Search Console and Bing Webmaster Tools

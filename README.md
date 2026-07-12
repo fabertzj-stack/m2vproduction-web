@@ -5,14 +5,33 @@ film fixing services in Tanzania.
 
 This README is the entry point. For deeper detail see:
 
-- [`DEPLOYMENT.md`](./DEPLOYMENT.md) — environment setup, build, test and production deployment
+- [`DEPLOYMENT.md`](./DEPLOYMENT.md) — one-click Vercel deploy walkthrough, environment setup, build/test instructions
 - [`CMS_GUIDE.md`](./CMS_GUIDE.md) — how to add/edit projects, journal posts, testimonials and team profiles
 - [`M2VPRODUCTION_Final_QA_Report.docx`](./M2VPRODUCTION_Final_QA_Report.docx) — what's done, what's blocked, and what needs client input before launch
+
+## Deploy this repo
+
+1. Push this folder to a new GitHub repository.
+2. Go to [vercel.com/new](https://vercel.com/new), import that repository.
+3. Vercel auto-detects Astro (via `vercel.json` + the `@astrojs/vercel` adapter already
+   configured in `astro.config.mjs`) — click **Deploy**.
+
+That's it for a first deploy. The site will build and go live with placeholder
+content and unverified facts clearly marked (see "Content Rules" below) — it will
+NOT look launch-ready until the steps in `DEPLOYMENT.md`'s pre-launch checklist are
+done, but it will build and run correctly out of the box. Every subsequent push to
+`main` redeploys automatically; every pull request gets its own preview URL. See
+`DEPLOYMENT.md` for environment variables you'll want to set before forms can send
+notification emails.
+
+A `.github/workflows/ci.yml` also runs on every push/PR — type-checking and building
+the project as a pre-merge safety net. It doesn't deploy anything; Vercel's own GitHub
+integration handles that.
 
 ## Stack
 
 - **Astro 4** (`output: "hybrid"`) — every page is static-prerendered at build time except
-  `/api/*` form endpoints, which run on-demand via the `@astrojs/node` adapter.
+  `/api/*` form endpoints, which run on-demand via the `@astrojs/vercel` adapter.
 - **TypeScript**, strict mode.
 - **Astro Content Collections** (Zod-validated) for Projects, Journal, Testimonials, Team.
 - **MDX** for long-form project/journal content.
@@ -21,7 +40,7 @@ This README is the entry point. For deeper detail see:
   progressive enhancement — every form, nav and accordion works with JavaScript
   disabled, just without the instant feedback.
 
-## Quick start
+## Quick start (local development)
 
 ```bash
 npm install
@@ -40,7 +59,10 @@ src/
   content/       Content Collections: projects/, journal/, testimonials/, team/
   pages/         Routes, including api/ (form endpoints), portfolio/[slug].astro, journal/[slug].astro, legal/
   styles/        tokens.css (design tokens) + global.css (reset/primitives)
+  middleware.ts  Security headers for the on-demand /api/* routes
 public/          Static assets — favicons and OG images are NOT yet populated, see below
+.github/workflows/ci.yml   Build/type-check CI (not deployment — see "Deploy this repo")
+vercel.json      Vercel project config: framework detection + security headers for static routes
 ```
 
 ## The Content Rules — read this before adding content
@@ -71,7 +93,8 @@ for the full list of what's currently unverified and why.
 - **Analytics.** GA4/GTM/Meta Pixel/LinkedIn Insight Tag are stubbed with TODOs in
   `BaseLayout.astro`, gated behind cookie consent, and intentionally not wired to real
   tracking IDs yet.
-- **A compiled build.** This sandbox has no npm registry access, so `npm install` /
-  `astro build` / `astro check` have not been run here — see the Final QA report for
-  the verification methodology used instead, and what still needs to happen on a real
-  machine before launch.
+- **A compiled build in THIS session.** This sandbox has no npm registry access, so
+  `npm install` / `astro build` / `astro check` have not been run here — see the Final
+  QA report for the verification methodology used instead. Vercel's build step (or
+  the GitHub Actions CI workflow) will be the first real compile of this code —
+  resolve anything it surfaces before relying on the site being launch-ready.

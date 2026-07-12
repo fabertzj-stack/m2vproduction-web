@@ -12,7 +12,7 @@ const { stats } = Astro.props;
 ---
 
 <div class="stats-band">
-  {stats.map((stat) => (
+  {stats.map((stat: VerifiableStat) => (
     <div class="stat">
       {stat.verified ? (
         <span class="value">{stat.value}</span>

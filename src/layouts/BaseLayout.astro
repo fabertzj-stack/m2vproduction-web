@@ -17,7 +17,7 @@ export interface Props {
 const { title, description, path, ogImage, noindex = false, extraSchema = [] } = Astro.props;
 
 const canonical = resolveCanonical(path);
-const ogImageUrl = resolveOgImage(path, ogImage);
+const ogImageUrl = resolveOgImage(ogImage);
 const schemas = [localBusinessSchema(), ...extraSchema];
 ---
 
@@ -47,7 +47,7 @@ const schemas = [localBusinessSchema(), ...extraSchema];
     <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- JSON-LD structured data -->
-    {schemas.map((schema) => (
+    {schemas.map((schema: object) => (
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     ))}
 

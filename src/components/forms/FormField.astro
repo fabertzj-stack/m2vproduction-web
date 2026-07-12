@@ -51,7 +51,7 @@ const errorId = `${fieldId}-error`;
   ) : as === "select" ? (
     <select id={fieldId} name={name} required={required} aria-describedby={errorId}>
       <option value="">{placeholder ?? "Select..."}</option>
-      {options.map((opt) => (
+      {options.map((opt: Option) => (
         <option value={opt.value}>{opt.label}</option>
       ))}
     </select>
