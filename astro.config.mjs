@@ -1,7 +1,22 @@
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
-import vercel from "@astrojs/vercel";
+import vercel from "@astrojs/vercel/serverless";
 
+// NOTE on the vercel import path: the version pinned in package.json is
+// "@astrojs/vercel": "^7.8.0" (peerDependencies: astro ^4.2.0). At that major version the
+// package's exports map does NOT provide a working default export at the package root —
+// "." only maps to a types stub (types.d.ts), with no `import`/`default` condition backing
+// it. The actual runtime adapters only exist at the "/serverless" and "/static" subpaths
+// (dist/serverless/adapter.js and dist/static/adapter.js respectively). The unified
+// `import vercel from "@astrojs/vercel"` root-import form only became valid in a LATER
+// major of the adapter that requires Astro 5 as a peer — which this project is not on
+// (astro is pinned to ^4.15.0, one major behind). Importing the bare package root here
+// caused Astro to fail resolving this config file entirely at build time ("[astro] Unable
+// to load your Astro config"), since Node/Vite couldn't find a module behind that export
+// condition. "/serverless" (not "/static") is correct here specifically because output
+// below is "hybrid": src/pages/api/*.ts opt out of prerendering and need to run as actual
+// Vercel serverless functions, which only the serverless adapter provides.
+//
 // NOTE: @astrojs/sitemap is intentionally NOT imported here even though it's listed in
 // package.json. `astro check` treats an imported-but-unused binding as a warning
 // (TS6133), and since this integration is disabled in favor of the hand-written
@@ -18,7 +33,7 @@ import vercel from "@astrojs/vercel";
 // `export const prerender = false` (used only by src/pages/api/*.ts). This requires an
 // adapter to run the non-prerendered routes.
 //
-// Adapter: @astrojs/vercel — chosen because this project deploys to Vercel via its
+// Adapter: @astrojs/vercel/serverless — chosen because this project deploys to Vercel via its
 // GitHub integration (push to GitHub, import the repo on vercel.com, click Deploy —
 // no separate CD pipeline needed, see DEPLOYMENT.md). It auto-detects Astro, builds
 // static routes as static assets and the /api/* routes as serverless functions with
