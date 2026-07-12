@@ -1,0 +1,60 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import Accordion from "@components/faq/Accordion.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { faqPageSchema, breadcrumbListSchema } from "@lib/schema";
+
+const seo = pageSeoRegistry.faq;
+
+const faqs = [
+  {
+    question: "What areas of Tanzania do you work in?",
+    answer: "We produce and fix across mainland Tanzania and Zanzibar, including Dar es Salaam, the Serengeti, Ngorongoro and Kilimanjaro region. If your shoot is somewhere else in the country, tell us the location and we'll confirm feasibility.",
+  },
+  {
+    question: "Do you only work with international clients, or local productions too?",
+    answer: "Both. Most of our film fixing work is for international crews, but our film production and corporate media services are used by local and regional clients as well.",
+  },
+  {
+    question: "How do you price a production?",
+    answer: "Pricing depends on scope — location, crew size, equipment, permits and timeline all factor in. Share your brief through the contact form or the Film Fixing enquiry form and we'll come back with a scoped estimate rather than a generic rate card.",
+  },
+  {
+    question: "Can you handle post-production, or just the shoot?",
+    answer: "Our core service is production and fixing on the ground. For edit and post-production needs, tell us your requirements and we'll confirm whether we can support that directly or recommend how to structure the handoff.",
+  },
+  {
+    question: "What's the fastest way to get a response?",
+    answer: "Use the Film Fixing enquiry form for anything with a permit or location component — it routes directly to the producer who can scope permit timelines. For general questions, the contact form works well too.",
+  },
+];
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  breadcrumbs={[{ label: "FAQ" }]}
+  extraSchema={[faqPageSchema(faqs), breadcrumbListSchema([{ name: "FAQ", path: "/faq" }])]}
+>
+  <section class="section hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">FAQ</p>
+      <h1>Common questions about filming in Tanzania.</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container-narrow">
+      <Accordion items={faqs} groupName="site-faq" />
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-8); }
+  .hero-inner { max-width: 640px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-ink); margin-bottom: var(--space-4); }
+  h1 { font-family: var(--font-serif); font-size: 36px; line-height: 1.15; color: var(--ink); }
+  .container-narrow { max-width: 760px; }
+</style>

@@ -1,0 +1,67 @@
+---
+// ProjectCard.astro — summary card for one `projects` content-collection entry, used in
+// WorkGrid and any "related projects" rail. Renders an "Illustrative example" badge
+// when isVerified is false, so unconfirmed/placeholder projects are never presented to
+// a site visitor as a completed real engagement — directly enforcing the Content Rules
+// for the Portfolio section specifically (Phase C flagged this as a launch blocker).
+import MediaBlock from "@components/media/MediaBlock.astro";
+
+export interface Props {
+  slug: string;
+  title: string;
+  service: string;
+  location: string;
+  heroImage: string;
+  heroImageAlt: string;
+  isVerified: boolean;
+}
+const { slug, title, service, location, heroImage, heroImageAlt, isVerified } = Astro.props;
+---
+
+<a href={`/portfolio/${slug}`} class="project-card">
+  <div class="media-wrap">
+    <MediaBlock src={heroImage} alt={heroImageAlt} ratio="4/3" />
+    {!isVerified && <span class="badge">Illustrative example</span>}
+  </div>
+  <div class="meta">
+    <h3>{title}</h3>
+    <p class="tags">{service} &middot; {location}</p>
+  </div>
+</a>
+
+<style>
+  .project-card {
+    display: block;
+    color: inherit;
+  }
+  .media-wrap {
+    position: relative;
+  }
+  .badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    background: rgba(20, 18, 14, 0.85);
+    color: #fff;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+  }
+  .meta {
+    padding-top: var(--space-3);
+  }
+  h3 {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .tags {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+</style>

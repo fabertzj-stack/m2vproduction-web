@@ -1,0 +1,65 @@
+---
+// Testimonial.astro — renders one testimonial content-collection entry. Per Content
+// Rules and the `testimonials` collection schema (src/content/config.ts), a client's
+// NAME only ever renders if BOTH isVerified and clientPermissionConfirmed are true;
+// otherwise the quote can still display (attributed generically) only if isVerified is
+// true on its own. If isVerified is false altogether, this component refuses to render.
+export interface Props {
+  quote: string;
+  attribution: string;
+  clientName?: string;
+  isVerified: boolean;
+  clientPermissionConfirmed: boolean;
+}
+const { quote, attribution, clientName, isVerified, clientPermissionConfirmed } = Astro.props;
+const canShowClientName = isVerified && clientPermissionConfirmed && !!clientName;
+---
+
+{isVerified ? (
+  <blockquote class="testimonial">
+    <p class="quote">&ldquo;{quote}&rdquo;</p>
+    <footer>
+      <span class="attribution">{attribution}</span>
+      {canShowClientName && <span class="client-name"> — {clientName}</span>}
+    </footer>
+  </blockquote>
+) : (
+  <div class="testimonial todo-block" role="note">
+    <p>
+      TODO: Testimonial pending verification (quote accuracy and, if a client name is
+      attached, written permission to publish). Not rendered publicly until isVerified
+      is set to true in the content collection entry.
+    </p>
+  </div>
+)}
+
+<style>
+  .testimonial {
+    padding: var(--space-6);
+    border-left: 3px solid var(--gold2);
+    background: var(--warmgrey);
+  }
+  .quote {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: var(--space-4);
+  }
+  footer {
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .client-name {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .todo-block {
+    padding: var(--space-4);
+    border: 1px dashed #c9bfa0;
+    background: #f7f3e8;
+    font-size: 12px;
+    font-style: italic;
+    color: #6b6552;
+  }
+</style>

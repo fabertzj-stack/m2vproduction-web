@@ -1,0 +1,62 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import ContactForm from "@components/forms/ContactForm.astro";
+import ContactCard from "@components/forms/ContactCard.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { breadcrumbListSchema } from "@lib/schema";
+import { contactDetails } from "@data/siteConfig";
+
+const seo = pageSeoRegistry.contact;
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  breadcrumbs={[{ label: "Contact" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Contact", path: "/contact" }])]}
+>
+  <section class="section hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">Contact</p>
+      <h1>Get in touch.</h1>
+      <p class="lede">
+        For production enquiries, use the Film Fixing form for the fastest routing to
+        the right producer — or send a general message below.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container contact-grid">
+      <div class="contact-cards">
+        <ContactCard channel={contactDetails.email} href={contactDetails.email.verified ? `mailto:${contactDetails.email.value}` : undefined}>
+          <svg slot="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18v12H3z"/><path d="M3 6l9 7 9-7"/></svg>
+        </ContactCard>
+        <ContactCard channel={contactDetails.emergencyLine} href={contactDetails.emergencyLine.verified ? `tel:${contactDetails.emergencyLine.value}` : undefined}>
+          <svg slot="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.8 2z"/></svg>
+        </ContactCard>
+        <ContactCard channel={contactDetails.whatsapp}>
+          <svg slot="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.6L3 20l1-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
+        </ContactCard>
+      </div>
+      <div class="form-wrap">
+        <h2 class="section-heading">Send a message</h2>
+        <ContactForm />
+      </div>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-9); }
+  .hero-inner { max-width: 640px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-ink); margin-bottom: var(--space-4); }
+  h1 { font-family: var(--font-serif); font-size: 40px; line-height: 1.15; color: var(--ink); margin-bottom: var(--space-5); }
+  .lede { font-size: 16px; line-height: 1.6; color: var(--text-muted); max-width: 55ch; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: var(--space-8); align-items: start; }
+  .contact-cards { display: flex; flex-direction: column; gap: var(--space-4); }
+  .section-heading { font-family: var(--font-serif); font-size: 24px; color: var(--ink); margin-bottom: var(--space-5); }
+  @media (max-width: 1024px) { .contact-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { h1 { font-size: 30px; } }
+</style>

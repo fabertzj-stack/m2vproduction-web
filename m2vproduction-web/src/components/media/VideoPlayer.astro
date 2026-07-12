@@ -1,0 +1,99 @@
+---
+// VideoPlayer.astro — lightweight, no-framework video embed. Two modes:
+// 1) `provider="self"` — native <video> with poster, for self-hosted MP4/WebM assets.
+// 2) `provider="youtube"|"vimeo"` — facade pattern: renders a static poster image with
+//    a play button and only injects the real iframe embed on click, avoiding the
+//    heavy third-party JS payload on page load (performance requirement — Phase A).
+export interface Props {
+  provider: "self" | "youtube" | "vimeo";
+  src?: string; // required for provider="self": path to video file
+  videoId?: string; // required for youtube/vimeo: the embed ID
+  poster: string;
+  title: string; // accessible title, required — used as aria-label and iframe title
+}
+const { provider, src, videoId, poster, title } = Astro.props;
+const uid = `vp-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+{provider === "self" ? (
+  <div class="video-player">
+    <video controls preload="none" poster={poster} aria-label={title}>
+      {src && <source src={src} />}
+      <track kind="captions" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+) : (
+  <div class="video-player facade" id={uid} data-provider={provider} data-video-id={videoId}>
+    <img src={poster} alt={title} loading="lazy" decoding="async" />
+    <button type="button" class="play-btn" aria-label={`Play video: ${title}`}>
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+        <path d="M8 5v14l11-7z" fill="currentColor" />
+      </svg>
+    </button>
+  </div>
+)}
+
+<script>
+  const facades = document.querySelectorAll(".video-player.facade");
+  facades.forEach((el) => {
+    const btn = el.querySelector(".play-btn");
+    btn?.addEventListener("click", () => {
+      const provider = el.getAttribute("data-provider");
+      const videoId = el.getAttribute("data-video-id");
+      if (!videoId) return;
+      const embedSrc =
+        provider === "youtube"
+          ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`
+          : `https://player.vimeo.com/video/${videoId}?autoplay=1`;
+      const iframe = document.createElement("iframe");
+      iframe.src = embedSrc;
+      iframe.title = el.querySelector("img")?.getAttribute("alt") || "Video";
+      iframe.allow = "autoplay; fullscreen; picture-in-picture";
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.className = "video-iframe";
+      el.innerHTML = "";
+      el.appendChild(iframe);
+    });
+  });
+</script>
+
+<style>
+  .video-player {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--ink);
+  }
+  .video-player video,
+  .video-player img,
+  .video-player :global(.video-iframe) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: none;
+  }
+  .facade {
+    cursor: pointer;
+  }
+  .play-btn {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .play-btn svg {
+    transform: translateX(2px);
+  }
+</style>

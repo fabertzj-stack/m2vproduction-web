@@ -1,0 +1,211 @@
+---
+// Film Fixing Tanzania — the flagship conversion page. See index.astro's frontmatter
+// comment re: copy provenance (re-authored this session, not pasted from the literal
+// Round 2 copy deck file). FAQ entries here double as visible content AND FAQPage
+// JSON-LD via faqPageSchema() — kept in one array so they can never drift apart.
+import PageLayout from "@layouts/PageLayout.astro";
+import Timeline from "@components/proof/Timeline.astro";
+import ProofCard from "@components/proof/ProofCard.astro";
+import Accordion from "@components/faq/Accordion.astro";
+import FixingEnquiryForm from "@components/forms/FixingEnquiryForm.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { faqPageSchema, breadcrumbListSchema } from "@lib/schema";
+import { responseTimePromise } from "@data/siteConfig";
+
+const seo = pageSeoRegistry.filmFixing;
+
+const steps = [
+  {
+    meta: "Day 0",
+    title: "Tell us your dates and locations",
+    description: "Send your shoot dates, target locations and rough crew size — we scope permits and availability from there.",
+  },
+  {
+    meta: "Days 1–3",
+    title: "Permit and location plan",
+    description: "We map out which permits apply (Film Board, TANAPA/NCAA for national parks, TCAA for drone work) and confirm a realistic timeline for each.",
+  },
+  {
+    meta: "Ongoing",
+    title: "Crew and equipment confirmed",
+    description: "Local camera assist, park liaison and any additional crew are booked from our vetted network, alongside any equipment you need on the ground.",
+  },
+  {
+    meta: "Production week",
+    title: "On the ground support",
+    description: "A dedicated producer stays on call throughout the shoot to handle anything that comes up — access issues, schedule changes, local logistics.",
+  },
+];
+
+const differentiators = [
+  {
+    title: "Permits, not paperwork guesswork",
+    description: "We track which authority governs each location — Tanzania Film Board, TANAPA, NCAA or TCAA for drones — so applications go to the right place the first time.",
+  },
+  {
+    title: "A single producer, start to finish",
+    description: "One point of contact coordinates permits, crew and logistics, so you're not managing three separate vendors on a tight schedule.",
+  },
+  {
+    title: "Local knowledge of park access",
+    description: "Park liaison relationships and familiarity with peak-season access rules for Serengeti, Ngorongoro and Zanzibar shoots.",
+  },
+];
+
+const faqs = [
+  {
+    question: "How far in advance do we need to apply for a film permit in Tanzania?",
+    answer: "Standard Film Board permits typically need to be lodged with meaningful lead time before your shoot dates, and national park filming permits (TANAPA/NCAA) are a separate process on top of that. Exact timelines vary by season and location — send us your dates as early as possible and we'll confirm a realistic schedule for your specific shoot.",
+  },
+  {
+    question: "Can you arrange drone filming permits?",
+    answer: "Drone filming in Tanzania requires clearance from TCAA, and national park drone use is separately and heavily restricted regardless of a standard permit. We'll tell you upfront whether your planned drone shots are realistic for your timeline and location before you commit to a plan around them.",
+  },
+  {
+    question: "Do you provide crew, or only permits and logistics?",
+    answer: "Both. We can supply local camera assistants, grip, lighting and production support from our vetted crew network, alongside handling permits and location logistics — or work alongside crew you're already bringing in.",
+  },
+  {
+    question: "What information do you need to give us an accurate scope?",
+    answer: "Shooting dates, target locations, rough crew size, and what you're filming (commercial, documentary, corporate, broadcast). The more specific you can be up front, the faster we can confirm permit timelines and availability.",
+  },
+];
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  navVariant="dark"
+  breadcrumbs={[{ label: "Film Fixing Tanzania" }]}
+  extraSchema={[
+    faqPageSchema(faqs),
+    breadcrumbListSchema([{ name: "Film Fixing Tanzania", path: "/film-fixing-tanzania" }]),
+  ]}
+>
+  <section class="hero section section--dark">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Film Fixing Tanzania</p>
+        <h1>Permits, locations and crew for international productions — handled by one team.</h1>
+        <p class="lede">
+          A dedicated film fixing service for international crews shooting in Tanzania.
+          We plan the permit path, secure park and location access, and staff your
+          production with vetted local crew — coordinated by a single producer from
+          first enquiry to wrap.
+          {responseTimePromise.verified && (
+            <> Response within {responseTimePromise.value}.</>
+          )}
+        </p>
+        <a href="#enquiry-form" class="btn btn-gold">Request Production Support</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-heading">How film fixing works with M2V</h2>
+      <Timeline steps={steps} />
+    </div>
+  </section>
+
+  <section class="section section--warm">
+    <div class="container">
+      <h2 class="section-heading">What sets our fixing service apart</h2>
+      <div class="grid-3">
+        {differentiators.map((d) => (
+          <ProofCard title={d.title} description={d.description} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="enquiry-form">
+    <div class="container form-section">
+      <div>
+        <h2 class="section-heading">Request production support</h2>
+        <p class="section-sub">
+          Tell us your dates, locations and budget range and we'll come back with a
+          realistic permit timeline and next steps.
+        </p>
+      </div>
+      <FixingEnquiryForm />
+    </div>
+  </section>
+
+  <section class="section section--warm">
+    <div class="container container-narrow">
+      <h2 class="section-heading">Frequently asked questions</h2>
+      <Accordion items={faqs} groupName="fixing-faq" />
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-9); }
+  .hero-grid { max-width: 760px; }
+  .eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold2);
+    margin-bottom: var(--space-4);
+  }
+  h1 {
+    font-family: var(--font-serif);
+    font-size: 42px;
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: var(--space-5);
+  }
+  .lede {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #c7c2b6;
+    margin-bottom: var(--space-6);
+    max-width: 62ch;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 13px 24px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .btn-gold { background: var(--gold2); color: var(--ink); }
+
+  .section-heading {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    color: var(--ink);
+    margin-bottom: var(--space-6);
+  }
+  .section-sub {
+    font-size: 14.5px;
+    color: var(--text-muted);
+    max-width: 46ch;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+  .form-section {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: var(--space-8);
+    align-items: start;
+  }
+  .container-narrow { max-width: 720px; }
+
+  @media (max-width: 1024px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .form-section { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    h1 { font-size: 30px; }
+  }
+</style>

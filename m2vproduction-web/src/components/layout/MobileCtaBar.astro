@@ -1,0 +1,49 @@
+---
+// MobileCtaBar.astro — fixed-position mobile-only bottom bar with a single primary
+// conversion action. Hidden on desktop via the same 640px breakpoint used elsewhere
+// (see tokens.css / global.css container rules). Kept as a separate component (rather
+// than folded into SiteNav) so pages can opt out via the `show` prop, e.g. legal pages.
+export interface Props {
+  label?: string;
+  href?: string;
+  show?: boolean;
+}
+const { label = "Request Production Support", href = "/contact", show = true } = Astro.props;
+---
+
+{show && (
+  <div class="mobile-cta-bar">
+    <a href={href} class="mobile-cta-link">{label}</a>
+  </div>
+)}
+
+<style>
+  .mobile-cta-bar {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .mobile-cta-bar {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: var(--z-mobile-cta);
+      padding: var(--space-3) var(--space-4);
+      background: var(--ink);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .mobile-cta-link {
+      display: block;
+      text-align: center;
+      background: var(--gold2);
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 13px;
+      border-radius: var(--radius-md);
+    }
+  }
+</style>

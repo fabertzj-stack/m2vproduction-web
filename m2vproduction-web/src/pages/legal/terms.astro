@@ -1,0 +1,69 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import LegalNotice from "@components/layout/LegalNotice.astro";
+import { breadcrumbListSchema } from "@lib/schema";
+
+const title = "Terms & Conditions | M2VPRODUCTION";
+const description = "Terms and conditions for use of the M2VPRODUCTION website.";
+---
+
+<PageLayout
+  title={title}
+  description={description}
+  path="/legal/terms"
+  breadcrumbs={[{ label: "Terms & Conditions" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Terms & Conditions", path: "/legal/terms" }])]}
+>
+  <section class="section legal">
+    <div class="container container-narrow">
+      <h1>Terms &amp; Conditions</h1>
+      <LegalNotice />
+
+      <h2>Acceptance of terms</h2>
+      <p>By using this website, you agree to these terms. If you do not agree, please do not use the site.</p>
+
+      <h2>Use of this site</h2>
+      <p>
+        This site is provided for informational purposes and to enable enquiries
+        about M2VPRODUCTION's services. You agree not to misuse the site, including
+        submitting false information through its forms or attempting to disrupt its
+        normal operation.
+      </p>
+
+      <h2>Intellectual property</h2>
+      <p>
+        Content on this site — including text, images, video and design — is the
+        property of M2VPRODUCTION or its licensors and may not be reproduced without
+        permission, except as permitted by law.
+      </p>
+
+      <h2>No warranty</h2>
+      <p>
+        This site and its content are provided "as is." Production quotes, timelines
+        and permit estimates discussed through this site are indicative and subject
+        to confirmation through direct engagement, not binding offers made by the
+        website itself.
+      </p>
+
+      <h2>Limitation of liability</h2>
+      <p>
+        M2VPRODUCTION is not liable for indirect or consequential losses arising from
+        use of this site, to the extent permitted by applicable law.
+      </p>
+
+      <h2>Governing law</h2>
+      <p>These terms are governed by the laws of the United Republic of Tanzania. Final governing-law language is pending legal review.</p>
+
+      <h2>Changes to these terms</h2>
+      <p>We may update these terms from time to time; continued use of the site constitutes acceptance of the updated terms.</p>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .legal { padding-block: var(--space-9); }
+  .container-narrow { max-width: 720px; }
+  h1 { font-family: var(--font-serif); font-size: 34px; color: var(--ink); margin-bottom: var(--space-6); }
+  h2 { font-family: var(--font-serif); font-size: 19px; color: var(--ink); margin-top: var(--space-7); margin-bottom: var(--space-3); }
+  p { font-size: 14.5px; line-height: 1.7; color: var(--text-muted); }
+</style>

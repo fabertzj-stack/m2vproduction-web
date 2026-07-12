@@ -1,0 +1,65 @@
+---
+// Breadcrumbs.astro — visual breadcrumb trail. Pages are responsible for building the
+// `items` array and separately passing the equivalent structured-data version to
+// PageLayout so JSON-LD stays in sync with what's rendered (see src/lib/schema.ts
+// breadcrumbListSchema()).
+export interface Crumb {
+  label: string;
+  href?: string; // omit on the final/current item
+}
+export interface Props {
+  items: Crumb[];
+}
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a></li>
+      {items.map((crumb: Crumb) => (
+        <li>
+          {crumb.href
+            ? <a href={crumb.href}>{crumb.label}</a>
+            : <span aria-current="page">{crumb.label}</span>}
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style>
+  .breadcrumbs {
+    padding: var(--space-4) 0;
+  }
+  .breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    gap: 0;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+  .breadcrumbs li {
+    display: flex;
+    align-items: center;
+  }
+  .breadcrumbs li:not(:last-child)::after {
+    content: "/";
+    margin: 0 var(--space-2);
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+  .breadcrumbs a {
+    color: var(--text-muted);
+  }
+  .breadcrumbs a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+  .breadcrumbs span[aria-current="page"] {
+    color: var(--ink);
+    font-weight: 600;
+  }
+</style>

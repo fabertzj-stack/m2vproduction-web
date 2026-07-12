@@ -1,0 +1,57 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import LegalNotice from "@components/layout/LegalNotice.astro";
+import { breadcrumbListSchema } from "@lib/schema";
+import { contactDetails } from "@data/siteConfig";
+
+const title = "Accessibility Statement | M2VPRODUCTION";
+const description = "M2VPRODUCTION's commitment to web accessibility and how to report issues.";
+---
+
+<PageLayout
+  title={title}
+  description={description}
+  path="/legal/accessibility-statement"
+  breadcrumbs={[{ label: "Accessibility Statement" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Accessibility Statement", path: "/legal/accessibility-statement" }])]}
+>
+  <section class="section legal">
+    <div class="container container-narrow">
+      <h1>Accessibility Statement</h1>
+      <LegalNotice />
+
+      <h2>Our commitment</h2>
+      <p>
+        This site is built to conform to the Web Content Accessibility Guidelines
+        (WCAG) 2.1 Level AA. That includes keyboard-operable navigation and forms,
+        sufficient color contrast, semantic headings and landmarks, visible focus
+        states, and respect for reduced-motion preferences.
+      </p>
+
+      <h2>Known limitations</h2>
+      <p>
+        This build has been checked using automated tooling and manual review during
+        development, but a full assisted-technology audit (screen reader testing
+        across NVDA/JAWS/VoiceOver, and manual keyboard-only walkthroughs of every
+        page) is still pending — see the Final QA report for the current status.
+        Report any accessibility barrier you encounter using the contact details below.
+      </p>
+
+      <h2>Feedback</h2>
+      <p>
+        {contactDetails.email.verified
+          ? <>If you experience any difficulty accessing content on this site, contact us at <a href={`mailto:${contactDetails.email.value}`}>{contactDetails.email.value}</a>.</>
+          : "A confirmed accessibility-feedback contact email is pending — see the Contact page for current channels."}
+      </p>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .legal { padding-block: var(--space-9); }
+  .container-narrow { max-width: 720px; }
+  h1 { font-family: var(--font-serif); font-size: 34px; color: var(--ink); margin-bottom: var(--space-6); }
+  h2 { font-family: var(--font-serif); font-size: 19px; color: var(--ink); margin-top: var(--space-7); margin-bottom: var(--space-3); }
+  p { font-size: 14.5px; line-height: 1.7; color: var(--text-muted); }
+  a { text-decoration: underline; color: var(--ink); }
+</style>

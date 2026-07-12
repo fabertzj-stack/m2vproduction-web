@@ -1,0 +1,95 @@
+---
+import { getCollection } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+import ProofCard from "@components/proof/ProofCard.astro";
+import WorkGrid from "@components/portfolio/WorkGrid.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { breadcrumbListSchema } from "@lib/schema";
+
+const seo = pageSeoRegistry.filmProduction;
+
+const allProjects = await getCollection("projects");
+const relatedProjects = allProjects
+  .filter((p) => p.data.isVerified && (p.data.service === "Commercials" || p.data.service === "Documentary" || p.data.service === "TV"))
+  .slice(0, 3)
+  .map((p) => ({
+    slug: p.slug,
+    title: p.data.title,
+    service: p.data.service,
+    location: p.data.location,
+    heroImage: p.data.heroImage,
+    heroImageAlt: p.data.heroImageAlt,
+    isVerified: p.data.isVerified,
+  }));
+
+const capabilities = [
+  { title: "Commercials", description: "Brand and agency commercial production, from single-location shoots to multi-region campaigns." },
+  { title: "Documentary", description: "Long-form and short documentary production for broadcasters, NGOs and independent producers." },
+  { title: "Broadcast & TV", description: "Location shoots and studio-adjacent production built to broadcast delivery standards." },
+  { title: "Photography", description: "Stills production alongside or independent of film work, for the same crew and locations." },
+];
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  breadcrumbs={[{ label: "Film Production" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Film Production", path: "/film-production" }])]}
+>
+  <section class="section hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">Film Production</p>
+      <h1>Broadcast-standard production, produced on the ground in Tanzania.</h1>
+      <p class="lede">
+        From commercials to documentary and broadcast work, we produce for international
+        brands and broadcasters with a Dar es Salaam-based crew who know the locations,
+        the permits and the delivery standards you're working to.
+      </p>
+      <a href="/contact" class="btn btn-gold">Start a Conversation</a>
+    </div>
+  </section>
+
+  <section class="section section--warm">
+    <div class="container">
+      <h2 class="section-heading">What we produce</h2>
+      <div class="grid-4">
+        {capabilities.map((c) => (
+          <ProofCard title={c.title} description={c.description} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {relatedProjects.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <h2 class="section-heading">Related work</h2>
+        <WorkGrid projects={relatedProjects} />
+      </div>
+    </section>
+  )}
+
+  <section class="section cta-band">
+    <div class="container cta-inner">
+      <h2>Have a production brief? Let's talk it through.</h2>
+      <a href="/contact" class="btn btn-gold">Contact Us</a>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-9); }
+  .hero-inner { max-width: 720px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-ink); margin-bottom: var(--space-4); }
+  h1 { font-family: var(--font-serif); font-size: 40px; line-height: 1.15; color: var(--ink); margin-bottom: var(--space-5); }
+  .lede { font-size: 16px; line-height: 1.6; color: var(--text-muted); margin-bottom: var(--space-6); max-width: 60ch; }
+  .btn { display: inline-flex; align-items: center; padding: 13px 24px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .btn-gold { background: var(--gold2); color: var(--ink); }
+  .section-heading { font-family: var(--font-serif); font-size: 28px; color: var(--ink); margin-bottom: var(--space-6); }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+  .cta-band { background: var(--ink); text-align: center; }
+  .cta-inner h2 { font-family: var(--font-serif); font-size: 26px; color: #fff; max-width: 560px; margin: 0 auto var(--space-6); }
+  @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { h1 { font-size: 30px; } .grid-4 { grid-template-columns: 1fr; } }
+</style>

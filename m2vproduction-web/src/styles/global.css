@@ -1,0 +1,84 @@
+@import "./tokens.css";
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bone);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  line-height: 1.15;
+}
+a { color: inherit; text-decoration: none; }
+img, svg, video { display: block; max-width: 100%; height: auto; }
+button, select, input, textarea { font-family: var(--font-sans); font-size: 1rem; }
+ul, ol { list-style: none; }
+
+/* ---------- accessibility primitives (sitewide, per Phase A requirements) ---------- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--gold2);
+  color: var(--ink);
+  padding: 12px 20px;
+  z-index: var(--z-skip-link);
+  font-weight: 700;
+  border-radius: 0 0 var(--radius-md) 0;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold2);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- layout primitives ---------- */
+.container {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: var(--space-8);
+}
+@media (max-width: 640px) {
+  .container { padding-inline: var(--space-5); }
+}
+
+.section {
+  padding-block: var(--space-10);
+}
+.section--tight { padding-block: var(--space-7); }
+.section--dark { background: var(--ink); color: #fff; }
+.section--warm { background: var(--warmgrey); }
+@media (max-width: 640px) {
+  .section { padding-block: var(--space-7); }
+  .section--tight { padding-block: var(--space-6); }
+}

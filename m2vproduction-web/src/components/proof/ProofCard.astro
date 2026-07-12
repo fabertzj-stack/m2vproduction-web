@@ -1,0 +1,46 @@
+---
+// ProofCard.astro — small trust-signal card (e.g. "Permits secured", "18 regions
+// covered", a named partner relationship). Generic content container; the CALLER is
+// responsible for only passing verified copy — this component has no data dependency
+// of its own to gate, unlike StatsBand/LogoStrip/Testimonial.
+export interface Props {
+  icon?: string; // inline SVG path data or icon name — rendered as-is via slot instead if omitted
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<div class="proof-card">
+  <div class="icon-slot">
+    <slot name="icon" />
+  </div>
+  <h3>{title}</h3>
+  <p>{description}</p>
+</div>
+
+<style>
+  .proof-card {
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .icon-slot {
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--space-4);
+    color: var(--gold-ink);
+  }
+  h3 {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    margin-bottom: var(--space-2);
+    color: var(--ink);
+  }
+  p {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+</style>

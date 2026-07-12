@@ -1,0 +1,105 @@
+---
+// ContactForm.astro — general-purpose contact form (Contact page). Simpler field set
+// than FixingEnquiryForm; posts to /api/contact.ts. Shares the same honeypot + client
+// submit pattern via formClient.ts.
+import FormField from "./FormField.astro";
+---
+
+<form id="contact-form" class="site-form" novalidate>
+  <div class="grid-2">
+    <FormField name="name" label="Your name" required />
+    <FormField name="email" label="Email" type="email" required />
+  </div>
+
+  <FormField name="subject" label="Subject" placeholder="What's this about?" />
+
+  <FormField name="message" label="Message" as="textarea" rows={6} required />
+
+  <!-- Honeypot: same pattern as FixingEnquiryForm.astro — see comment there for rationale. -->
+  <div class="honeypot" aria-hidden="true">
+    <label for="ct-company-website">Company website</label>
+    <input type="text" id="ct-company-website" name="company_website" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <button type="submit" class="btn btn-gold btn-block">Send Message</button>
+
+  <div class="form-status" id="contact-form-status" role="status" aria-live="polite"></div>
+</form>
+
+<script>
+  import { submitForm, renderFieldErrors } from "@lib/formClient";
+
+  const form = document.getElementById("contact-form");
+  const status = document.getElementById("contact-form-status");
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!(form instanceof HTMLFormElement) || !status) return;
+    status.textContent = "";
+
+    await submitForm({
+      form,
+      endpoint: "/api/contact",
+      onSuccess: () => {
+        form.hidden = true;
+        status.textContent = "Thanks for reaching out — we'll get back to you shortly.";
+        status.dataset.state = "success";
+      },
+      onError: (errors, generalMessage) => {
+        renderFieldErrors(form, errors);
+        if (generalMessage) {
+          status.textContent = generalMessage;
+          status.dataset.state = "error";
+        }
+      },
+    });
+  });
+</script>
+
+<style>
+  .site-form {
+    max-width: 560px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+  .honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .btn.btn-gold.btn-block {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    background: var(--gold2);
+    color: var(--ink);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    margin-top: var(--space-2);
+  }
+  .btn.btn-gold.btn-block:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .form-status {
+    margin-top: var(--space-4);
+    font-size: 13.5px;
+    min-height: 18px;
+  }
+  .form-status[data-state="success"] { color: #3f7a4f; }
+  .form-status[data-state="error"] { color: #c0503f; }
+
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,91 @@
+---
+// FilterBar.astro — client-side filter controls for WorkGrid. Progressive enhancement:
+// with JS disabled, all filter buttons are still visible/focusable links but simply
+// don't filter (WorkGrid renders the full unfiltered set server-side as the baseline).
+// Filtering itself is done in WorkGrid's inline script via data-attributes, so FilterBar
+// only needs to dispatch a custom event with the chosen filter value.
+export interface FilterOption {
+  label: string;
+  value: string;
+}
+export interface Props {
+  services: FilterOption[];
+  locations: FilterOption[];
+}
+const { services, locations } = Astro.props;
+---
+
+<div class="filter-bar" role="group" aria-label="Filter portfolio">
+  <div class="filter-group">
+    <span class="group-label">Service</span>
+    <button type="button" class="filter-btn active" data-filter-type="service" data-filter-value="all">All</button>
+    {services.map((s: FilterOption) => (
+      <button type="button" class="filter-btn" data-filter-type="service" data-filter-value={s.value}>{s.label}</button>
+    ))}
+  </div>
+  <div class="filter-group">
+    <span class="group-label">Location</span>
+    <button type="button" class="filter-btn active" data-filter-type="location" data-filter-value="all">All</button>
+    {locations.map((l: FilterOption) => (
+      <button type="button" class="filter-btn" data-filter-type="location" data-filter-value={l.value}>{l.label}</button>
+    ))}
+  </div>
+</div>
+
+<script>
+  const bar = document.querySelector(".filter-bar");
+
+  bar?.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest(".filter-btn") as HTMLElement | null;
+    if (!btn) return;
+    const type = btn.dataset.filterType;
+    const value = btn.dataset.filterValue;
+    if (!type || !value) return;
+
+    bar.querySelectorAll(`.filter-btn[data-filter-type="${type}"]`).forEach((b) => {
+      b.classList.remove("active");
+    });
+    btn.classList.add("active");
+
+    document.dispatchEvent(
+      new CustomEvent("portfolio-filter-change", { detail: { type, value } })
+    );
+  });
+</script>
+
+<style>
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .group-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-right: var(--space-2);
+  }
+  .filter-btn {
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    color: var(--ink);
+    font-size: 12.5px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .filter-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+</style>

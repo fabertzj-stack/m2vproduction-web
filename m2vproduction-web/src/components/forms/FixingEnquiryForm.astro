@@ -1,0 +1,131 @@
+---
+// FixingEnquiryForm.astro — the flagship conversion form (Film Fixing Tanzania page).
+// Posts to /api/fixing-enquiry.ts. Field set/copy matches the approved Phase 2 copy
+// deck. Location/budget options below are generic UI buckets (Tanzania regions, broad
+// budget ranges) — not specific claims about M2V's pricing or capacity, so they are not
+// subject to the Content Rules verification gate the way stats/clients/testimonials are.
+import FormField from "./FormField.astro";
+
+const locationOptions = [
+  { value: "serengeti", label: "Serengeti" },
+  { value: "zanzibar", label: "Zanzibar" },
+  { value: "dar-es-salaam", label: "Dar es Salaam" },
+  { value: "ngorongoro", label: "Ngorongoro" },
+  { value: "kilimanjaro", label: "Kilimanjaro region" },
+  { value: "multiple", label: "Multiple locations" },
+  { value: "not-sure", label: "Not sure yet" },
+];
+
+const budgetOptions = [
+  { value: "under-10k", label: "Under $10,000" },
+  { value: "10k-25k", label: "$10,000 – $25,000" },
+  { value: "25k-50k", label: "$25,000 – $50,000" },
+  { value: "50k-plus", label: "$50,000+" },
+  { value: "not-sure", label: "Not sure yet" },
+];
+---
+
+<form id="fixing-enquiry-form" class="site-form" novalidate>
+  <div class="grid-2">
+    <FormField name="name" label="Your name" required />
+    <FormField name="email" label="Email" type="email" required />
+  </div>
+
+  <FormField name="dates" label="Shooting dates" placeholder="e.g. 12–20 September 2026" required />
+
+  <div class="grid-2">
+    <FormField name="location" label="Location(s)" as="select" options={locationOptions} required />
+    <FormField name="budget" label="Budget range" as="select" options={budgetOptions} required />
+  </div>
+
+  <FormField name="notes" label="Anything else we should know?" as="textarea" placeholder="Crew size, equipment needs, permit type..." />
+
+  <!-- Honeypot: hidden from real users via CSS, invisible to screen readers via aria-hidden + tabindex="-1". Bots that auto-fill every field will trip validateFixingEnquiry's isHoneypotTriggered check server-side. -->
+  <div class="honeypot" aria-hidden="true">
+    <label for="fx-company-website">Company website</label>
+    <input type="text" id="fx-company-website" name="company_website" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <button type="submit" class="btn btn-gold btn-block">Request Production Support</button>
+
+  <div class="form-status" id="fixing-form-status" role="status" aria-live="polite"></div>
+</form>
+
+<script>
+  import { submitForm, renderFieldErrors } from "@lib/formClient";
+
+  const form = document.getElementById("fixing-enquiry-form");
+  const status = document.getElementById("fixing-form-status");
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!(form instanceof HTMLFormElement) || !status) return;
+    status.textContent = "";
+
+    await submitForm({
+      form,
+      endpoint: "/api/fixing-enquiry",
+      onSuccess: () => {
+        form.hidden = true;
+        status.textContent =
+          "Thank you — we've received your enquiry and will respond within one business day.";
+        status.dataset.state = "success";
+      },
+      onError: (errors, generalMessage) => {
+        renderFieldErrors(form, errors);
+        if (generalMessage) {
+          status.textContent = generalMessage;
+          status.dataset.state = "error";
+        }
+      },
+    });
+  });
+</script>
+
+<style>
+  .site-form {
+    max-width: 560px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+  .honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .btn.btn-gold.btn-block {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    background: var(--gold2);
+    color: var(--ink);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    margin-top: var(--space-2);
+  }
+  .btn.btn-gold.btn-block:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .form-status {
+    margin-top: var(--space-4);
+    font-size: 13.5px;
+    min-height: 18px;
+  }
+  .form-status[data-state="success"] { color: #3f7a4f; }
+  .form-status[data-state="error"] { color: #c0503f; }
+
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>

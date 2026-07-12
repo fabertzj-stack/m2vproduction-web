@@ -1,0 +1,73 @@
+---
+// LogoStrip.astro — client/partner logo row. Reads ONLY from coreClients (client-
+// provided names) by default and filters to verified:true, per Content Rules and the
+// Phase C finding that unconfirmedExtendedClients must never render publicly. Pass
+// `showUnverifiedAsWordmark` only in internal/staging contexts (never production) to
+// preview layout with placeholder text wordmarks.
+import { coreClients } from "@data/siteConfig";
+
+export interface Props {
+  heading?: string;
+  showUnverifiedAsWordmark?: boolean;
+}
+const { heading = "Trusted by production teams from", showUnverifiedAsWordmark = false } = Astro.props;
+
+const verifiedClients = coreClients.filter((c) => c.verified);
+const displayClients = showUnverifiedAsWordmark ? coreClients : verifiedClients;
+---
+
+{displayClients.length > 0 ? (
+  <div class="logo-strip">
+    {heading && <p class="heading">{heading}</p>}
+    <ul class="logos">
+      {displayClients.map((client) => (
+        <li>
+          {client.verified ? (
+            <span class="logo-mark" title={client.name}>{client.name}</span>
+          ) : (
+            <span class="logo-mark todo" title={client.todo}>{client.name} (unverified)</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+) : null}
+{/*
+  TODO: No verified client logos/names available yet. See Phase C item 3 — written
+  permission required from each client before any name or logo appears publicly.
+  This component intentionally renders nothing above until that exists.
+*/}
+
+<style>
+  .logo-strip {
+    text-align: center;
+  }
+  .heading {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: var(--space-5);
+  }
+  .logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-7);
+    list-style: none;
+  }
+  .logo-mark {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    color: var(--ink);
+    opacity: 0.6;
+  }
+  .logo-mark.todo {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-style: italic;
+    color: #8a7550;
+    opacity: 1;
+  }
+</style>

@@ -1,0 +1,77 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import LegalNotice from "@components/layout/LegalNotice.astro";
+import { breadcrumbListSchema } from "@lib/schema";
+import { contactDetails } from "@data/siteConfig";
+
+const title = "Privacy Policy | M2VPRODUCTION";
+const description = "How M2VPRODUCTION collects, uses and protects personal data submitted through this website.";
+---
+
+<PageLayout
+  title={title}
+  description={description}
+  path="/legal/privacy-policy"
+  breadcrumbs={[{ label: "Privacy Policy" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Privacy Policy", path: "/legal/privacy-policy" }])]}
+>
+  <section class="section legal">
+    <div class="container container-narrow">
+      <h1>Privacy Policy</h1>
+      <LegalNotice />
+
+      <h2>Information we collect</h2>
+      <p>
+        When you submit the Fixing Enquiry or Contact forms on this site, we collect
+        the information you provide — including your name, email address, and any
+        production details you share (dates, locations, budget range, message
+        content). We do not collect payment information through this site.
+      </p>
+
+      <h2>How we use it</h2>
+      <p>
+        Submitted information is used solely to respond to your enquiry and, where
+        relevant, to scope and deliver production or fixing services. We do not sell
+        or rent personal data to third parties.
+      </p>
+
+      <h2>Cookies and analytics</h2>
+      <p>
+        This site uses cookies for essential site functionality and, only after you
+        accept via the cookie banner, for analytics (see our
+        <a href="/legal/cookie-policy">Cookie Policy</a> for details). Analytics tools
+        are not active until consent is given.
+      </p>
+
+      <h2>Data retention</h2>
+      <p>
+        Form submissions are retained only as long as necessary to respond to your
+        enquiry and, if you become a client, for the duration of the working
+        relationship and any legally required retention period thereafter. Exact
+        retention periods are pending confirmation as part of legal review (Phase H).
+      </p>
+
+      <h2>Your rights</h2>
+      <p>
+        You may request access to, correction of, or deletion of personal data we
+        hold about you by contacting us using the details below.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        {contactDetails.email.verified
+          ? <>Questions about this policy can be sent to <a href={`mailto:${contactDetails.email.value}`}>{contactDetails.email.value}</a>.</>
+          : "A confirmed privacy contact email is pending — see the Contact page for current channels."}
+      </p>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .legal { padding-block: var(--space-9); }
+  .container-narrow { max-width: 720px; }
+  h1 { font-family: var(--font-serif); font-size: 34px; color: var(--ink); margin-bottom: var(--space-6); }
+  h2 { font-family: var(--font-serif); font-size: 19px; color: var(--ink); margin-top: var(--space-7); margin-bottom: var(--space-3); }
+  p { font-size: 14.5px; line-height: 1.7; color: var(--text-muted); }
+  a { text-decoration: underline; color: var(--ink); }
+</style>

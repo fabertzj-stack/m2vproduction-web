@@ -1,0 +1,13 @@
+# Security headers — Netlify / Cloudflare Pages format (both read a plain `_headers`
+# file at the site root automatically). This project deploys to Vercel by default (see
+# vercel.json, which carries the same header set in Vercel's own format) — this file
+# exists purely so the project stays portable if it's ever moved to Netlify or
+# Cloudflare Pages instead, per DEPLOYMENT.md's adapter-swap instructions.
+
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
