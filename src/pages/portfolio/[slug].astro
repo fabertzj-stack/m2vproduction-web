@@ -26,16 +26,40 @@ const { project } = Astro.props;
 const { Content } = await project.render();
 const p = project.data;
 
-const detailFields: Array<[string, string | undefined]> = [
-  ["The Challenge", p.challenge],
-  ["Timeline", p.timeline],
-  ["Crew Size", p.crewSize],
-  ["Locations", p.locationsDetail],
-  ["Permits Secured", p.permitsSecured],
-  ["Equipment Used", p.equipmentUsed],
-  ["Client Outcome", p.clientOutcome],
-  ["Lessons Learned", p.lessonsLearned],
-].filter(([, value]) => Boolean(value));
+// NOTE: this used to be `Array<[string, string | undefined]>` built from bare
+// `["label", value]` array literals. That fails to type-check: a type annotation on
+// a `const` only flows into the initializer as a whole, and here the initializer is
+// `arrayLiteral.filter(...)` — a call expression — so the annotation does NOT flow
+// down into the individual `["The Challenge", p.challenge]` entries. Each of those
+// then gets inferred on its own as a plain `(string | undefined)[]` (TypeScript's
+// default for a two-element array literal with mixed element types), not as the
+// 2-tuple the annotation expects. A plain array is never assignable to a fixed-length
+// tuple, so the whole declaration fails with TS2322 ("Target requires 2 element(s)
+// but source may have fewer"). Using a `{ label, value }` object shape instead of a
+// tuple sidesteps the inference gap entirely — object literal properties are checked
+// structurally per-property, with no tuple-arity requirement to violate.
+interface DetailField {
+  label: string;
+  value: string;
+}
+
+const detailFieldCandidates: { label: string; value: string | undefined }[] = [
+  { label: "The Challenge", value: p.challenge },
+  { label: "Timeline", value: p.timeline },
+  { label: "Crew Size", value: p.crewSize },
+  { label: "Locations", value: p.locationsDetail },
+  { label: "Permits Secured", value: p.permitsSecured },
+  { label: "Equipment Used", value: p.equipmentUsed },
+  { label: "Client Outcome", value: p.clientOutcome },
+  { label: "Lessons Learned", value: p.lessonsLearned },
+];
+
+// A type-predicate filter (`field is DetailField`) narrows `value` from
+// `string | undefined` to `string` in the result type — not just at this call site
+// but for every downstream read of `detailFields`, e.g. in the template below.
+const detailFields: DetailField[] = detailFieldCandidates.filter(
+  (field): field is DetailField => Boolean(field.value)
+);
 
 const pageTitle = `${p.title} | Portfolio — M2VPRODUCTION`;
 const pageDescription = p.challenge ?? pageSeoRegistry.portfolio.description;
@@ -75,10 +99,10 @@ const pageDescription = p.challenge ?? pageSeoRegistry.portfolio.description;
 
     {detailFields.length > 0 && (
       <div class="container detail-grid">
-        {detailFields.map(([label, value]) => (
+        {detailFields.map((field) => (
           <div class="detail-item">
-            <span class="detail-label">{label}</span>
-            <p>{value}</p>
+            <span class="detail-label">{field.label}</span>
+            <p>{field.value}</p>
           </div>
         ))}
       </div>

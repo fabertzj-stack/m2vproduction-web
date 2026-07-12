@@ -1,8 +1,8 @@
 ---
 // Breadcrumbs.astro — visual breadcrumb trail. Pages are responsible for building the
 // `items` array and separately passing the equivalent structured-data version to
-// BreadcrumbLayout/PageLayout so JSON-LD stays in sync with what's rendered (see
-// src/lib/schema.ts breadcrumbListSchema()).
+// PageLayout so JSON-LD stays in sync with what's rendered (see src/lib/schema.ts
+// breadcrumbListSchema()).
 export interface Crumb {
   label: string;
   href?: string; // omit on the final/current item

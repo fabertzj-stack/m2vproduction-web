@@ -2,7 +2,8 @@
 // AccordionItem.astro — single accessible disclosure item using native <details>/
 // <summary> for zero-JS baseline functionality (progressive enhancement per Phase A/
 // Lead Technical Director requirements). Accordion.astro adds the "only one open at a
-// time" behavior on top via a tiny script; without JS every item still works standalone.
+// time" behavior on top via the native shared `name` attribute; without JS every item
+// still works standalone.
 export interface Props {
   question: string;
   open?: boolean;

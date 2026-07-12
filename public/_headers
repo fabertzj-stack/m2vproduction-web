@@ -1,15 +1,8 @@
 # Security headers — Netlify / Cloudflare Pages format (both read a plain `_headers`
-# file at the site root automatically). This is the concrete implementation of the
-# security requirements from the build brief: CSP, HSTS, Referrer-Policy,
-# Permissions-Policy, X-Frame-Options, X-Content-Type-Options.
-#
-# IMPORTANT: this file only takes effect on Netlify or Cloudflare Pages. Most of this
-# site's pages are static-prerendered HTML (output: "hybrid"), so these headers cannot
-# be set from inside the Astro app itself at runtime — Astro middleware only runs for
-# on-demand routes (see src/middleware.ts, which covers /api/*), not for already-built
-# static HTML files served directly by a CDN/host. If deploying elsewhere (a Node
-# server, Vercel, nginx), set the equivalent headers at that layer instead — see
-# DEPLOYMENT.md "Security headers" section for exact per-platform instructions.
+# file at the site root automatically). This project deploys to Vercel by default (see
+# vercel.json, which carries the same header set in Vercel's own format) — this file
+# exists purely so the project stays portable if it's ever moved to Netlify or
+# Cloudflare Pages instead, per DEPLOYMENT.md's adapter-swap instructions.
 
 /*
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload

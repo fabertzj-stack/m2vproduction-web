@@ -9,9 +9,10 @@
  * serverless hosts (Vercel, Netlify Functions, Cloudflare Workers) run multiple
  * short-lived instances, where this Map resets per instance and won't enforce a true
  * global limit. For production at scale, replace this with a shared store — Upstash
- * Redis is the standard low-effort choice for exactly this use case. This module is
- * written so that swap is a single-file change: everything else calls `isRateLimited()`
- * and doesn't need to know how it's implemented underneath.
+ * Redis is the standard low-effort choice for exactly this use case (and pairs
+ * naturally with Vercel specifically via the Vercel Marketplace integration). This
+ * module is written so that swap is a single-file change: everything else calls
+ * `isRateLimited()` and doesn't need to know how it's implemented underneath.
  */
 
 interface RateLimitEntry {
