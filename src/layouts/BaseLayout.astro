@@ -48,7 +48,7 @@ const schemas = [localBusinessSchema(), ...extraSchema];
 
     <!-- JSON-LD structured data -->
     {schemas.map((schema: object) => (
-      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} is:inline />
     ))}
 
     <link rel="icon" href="/favicons/favicon-32x32.png" sizes="32x32" />
