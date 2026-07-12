@@ -1,0 +1,116 @@
+---
+// FormField.astro — accessible form field wrapper: label, input/textarea/select, and an
+// error message region with aria-describedby wired up so screen readers announce errors.
+// The actual <input>/<select>/<textarea> markup varies by `as`, so this component
+// renders the right element while keeping label/error plumbing identical across all of
+// them — used by both FixingEnquiryForm.astro and ContactForm.astro.
+export interface Option {
+  value: string;
+  label: string;
+}
+export interface Props {
+  name: string;
+  label: string;
+  as?: "input" | "textarea" | "select";
+  type?: string; // used when as="input", e.g. "email", "tel", "text"
+  required?: boolean;
+  options?: Option[]; // used when as="select"
+  placeholder?: string;
+  rows?: number; // used when as="textarea"
+}
+const {
+  name,
+  label,
+  as = "input",
+  type = "text",
+  required = false,
+  options = [],
+  placeholder,
+  rows = 4,
+} = Astro.props;
+
+const fieldId = `field-${name}`;
+const errorId = `${fieldId}-error`;
+---
+
+<div class="form-field" data-field={name}>
+  <label for={fieldId}>
+    {label}
+    {required && <span class="required" aria-hidden="true">*</span>}
+  </label>
+
+  {as === "textarea" ? (
+    <textarea
+      id={fieldId}
+      name={name}
+      rows={rows}
+      placeholder={placeholder}
+      required={required}
+      aria-describedby={errorId}
+    ></textarea>
+  ) : as === "select" ? (
+    <select id={fieldId} name={name} required={required} aria-describedby={errorId}>
+      <option value="">{placeholder ?? "Select..."}</option>
+      {options.map((opt) => (
+        <option value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  ) : (
+    <input
+      id={fieldId}
+      name={name}
+      type={type}
+      placeholder={placeholder}
+      required={required}
+      aria-describedby={errorId}
+    />
+  )}
+
+  <p class="field-error" id={errorId} role="alert" aria-live="polite"></p>
+</div>
+
+<style>
+  .form-field {
+    margin-bottom: var(--space-5);
+  }
+  label {
+    display: block;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    margin-bottom: var(--space-2);
+  }
+  .required {
+    color: var(--gold-ink);
+  }
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+    font-size: 14px;
+    font-family: var(--font-sans);
+    color: var(--ink);
+  }
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid var(--gold2);
+    outline-offset: 1px;
+  }
+  .form-field[data-invalid="true"] input,
+  .form-field[data-invalid="true"] textarea,
+  .form-field[data-invalid="true"] select {
+    border-color: #c0503f;
+  }
+  .field-error {
+    font-size: 12px;
+    color: #c0503f;
+    margin-top: var(--space-2);
+    min-height: 14px;
+  }
+</style>

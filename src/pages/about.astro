@@ -1,0 +1,118 @@
+---
+import { getCollection } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+import StatsBand from "@components/proof/StatsBand.astro";
+import MediaBlock from "@components/media/MediaBlock.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { breadcrumbListSchema } from "@lib/schema";
+import { companyStats } from "@data/siteConfig";
+
+const seo = pageSeoRegistry.about;
+
+const allTeam = await getCollection("team");
+const verifiedTeam = allTeam.filter((t) => t.data.isVerified);
+
+const values = [
+  { title: "One team, not a chain of vendors", description: "Production, fixing and logistics run through the same team, so nothing gets lost between handoffs." },
+  { title: "Straight answers on timelines", description: "If a permit or a location isn't realistic for your dates, we say so early — not after you've built a schedule around it." },
+  { title: "Built for international standards", description: "Delivery specs, communication and workflow built around how international broadcasters and agencies already work." },
+];
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  breadcrumbs={[{ label: "About" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "About", path: "/about" }])]}
+>
+  <section class="section hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">About M2VPRODUCTION</p>
+      <h1>Built to make international productions in Tanzania feel less foreign.</h1>
+      <p class="lede">
+        M2VPRODUCTION started from a simple frustration: international crews filming in
+        Tanzania were stitching together a permit contact, a local fixer and a crew
+        agency separately, on every single production. We built the company to be all
+        three — one team a producer can call once and trust to handle what happens on
+        the ground.
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container">
+      <StatsBand stats={companyStats} />
+    </div>
+  </section>
+
+  <section class="section section--warm">
+    <div class="container">
+      <h2 class="section-heading">What guides how we work</h2>
+      <div class="grid-3">
+        {values.map((v) => (
+          <div class="value-card">
+            <h3>{v.title}</h3>
+            <p>{v.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-heading">The team</h2>
+      {verifiedTeam.length > 0 ? (
+        <div class="team-grid">
+          {verifiedTeam.map((member) => (
+            <div class="team-card">
+              {member.data.photo && (
+                <MediaBlock src={member.data.photo} alt={member.data.photoAlt ?? member.data.name} ratio="1/1" />
+              )}
+              <h3>{member.data.name}</h3>
+              <p class="role">{member.data.title}</p>
+              <p class="bio">{member.data.bio}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="pending-note">
+          Team profiles are being confirmed before publishing — check back soon, or
+          <a href="/contact">get in touch directly</a> in the meantime.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <section class="section cta-band">
+    <div class="container cta-inner">
+      <h2>Want to talk through a production before you commit dates?</h2>
+      <a href="/contact" class="btn btn-gold">Contact Us</a>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-9); }
+  .hero-inner { max-width: 760px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-ink); margin-bottom: var(--space-4); }
+  h1 { font-family: var(--font-serif); font-size: 40px; line-height: 1.15; color: var(--ink); margin-bottom: var(--space-5); }
+  .lede { font-size: 16px; line-height: 1.65; color: var(--text-muted); max-width: 65ch; }
+  .section-heading { font-family: var(--font-serif); font-size: 28px; color: var(--ink); margin-bottom: var(--space-6); }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  .value-card h3 { font-family: var(--font-serif); font-size: 19px; margin-bottom: var(--space-3); color: var(--ink); }
+  .value-card p { font-size: 13.5px; line-height: 1.6; color: var(--text-muted); }
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  .team-card h3 { font-family: var(--font-serif); font-size: 19px; margin-top: var(--space-4); color: var(--ink); }
+  .team-card .role { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gold-ink); margin-bottom: var(--space-3); }
+  .team-card .bio { font-size: 13.5px; line-height: 1.6; color: var(--text-muted); }
+  .pending-note { font-size: 14px; color: var(--text-muted); }
+  .pending-note a { text-decoration: underline; color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; padding: 13px 24px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .btn-gold { background: var(--gold2); color: var(--ink); }
+  .cta-band { background: var(--ink); text-align: center; }
+  .cta-inner h2 { font-family: var(--font-serif); font-size: 26px; color: #fff; max-width: 560px; margin: 0 auto var(--space-6); }
+  @media (max-width: 1024px) { .grid-3, .team-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { h1 { font-size: 30px; } }
+</style>

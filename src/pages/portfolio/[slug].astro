@@ -1,0 +1,148 @@
+---
+// Dynamic project detail route — one page per `projects` content collection entry.
+// Renders the full 9-field case study template (Phase 2/D) when those optional fields
+// are present, and a prominent "Illustrative example" notice whenever isVerified is
+// false, so an unconfirmed placeholder project can never be mistaken for a real,
+// permissioned case study by a site visitor.
+import { getCollection, type CollectionEntry } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+import MediaBlock from "@components/media/MediaBlock.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { breadcrumbListSchema } from "@lib/schema";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+const p = project.data;
+
+const detailFields: Array<[string, string | undefined]> = [
+  ["The Challenge", p.challenge],
+  ["Timeline", p.timeline],
+  ["Crew Size", p.crewSize],
+  ["Locations", p.locationsDetail],
+  ["Permits Secured", p.permitsSecured],
+  ["Equipment Used", p.equipmentUsed],
+  ["Client Outcome", p.clientOutcome],
+  ["Lessons Learned", p.lessonsLearned],
+].filter(([, value]) => Boolean(value));
+
+const pageTitle = `${p.title} | Portfolio — M2VPRODUCTION`;
+const pageDescription = p.challenge ?? pageSeoRegistry.portfolio.description;
+---
+
+<PageLayout
+  title={pageTitle}
+  description={pageDescription}
+  path={`/portfolio/${project.slug}`}
+  ogImage={p.heroImage}
+  noindex={!p.isVerified}
+  breadcrumbs={[{ label: "Portfolio", href: "/portfolio" }, { label: p.title }]}
+  extraSchema={[
+    breadcrumbListSchema([
+      { name: "Portfolio", path: "/portfolio" },
+      { name: p.title, path: `/portfolio/${project.slug}` },
+    ]),
+  ]}
+>
+  <article class="section">
+    <div class="container project-header">
+      {!p.isVerified && (
+        <div class="draft-notice" role="note">
+          <strong>Illustrative example.</strong> This case study is placeholder content
+          used during design and copywriting, not a confirmed, client-permissioned
+          project. It is excluded from search indexing (noindex) until verified.
+        </div>
+      )}
+      <p class="tags">{p.service} &middot; {p.location}</p>
+      <h1>{p.title}</h1>
+      {p.client && p.clientPermissionConfirmed && <p class="client">Client: {p.client}</p>}
+    </div>
+
+    <div class="container">
+      <MediaBlock src={p.heroImage} alt={p.heroImageAlt} ratio="16/9" priority />
+    </div>
+
+    {detailFields.length > 0 && (
+      <div class="container detail-grid">
+        {detailFields.map(([label, value]) => (
+          <div class="detail-item">
+            <span class="detail-label">{label}</span>
+            <p>{value}</p>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <div class="container prose">
+      <Content />
+    </div>
+  </article>
+</PageLayout>
+
+<style>
+  .project-header { max-width: 800px; padding-bottom: var(--space-6); }
+  .draft-notice {
+    background: #f7f3e8;
+    border: 1px dashed #c9bfa0;
+    color: #6b6552;
+    font-size: 13px;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-5);
+  }
+  .tags {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gold-ink);
+    margin-bottom: var(--space-3);
+  }
+  h1 {
+    font-family: var(--font-serif);
+    font-size: 36px;
+    color: var(--ink);
+    margin-bottom: var(--space-3);
+  }
+  .client { font-size: 14px; color: var(--text-muted); }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+    padding-block: var(--space-8);
+  }
+  .detail-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gold-ink);
+    margin-bottom: var(--space-2);
+  }
+  .detail-item p {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .prose {
+    max-width: 70ch;
+    padding-bottom: var(--space-8);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+  @media (max-width: 640px) {
+    h1 { font-size: 28px; }
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+// PageLayout.astro — the standard page shell. Wraps BaseLayout (which owns <head>,
+// skip-link, and CookieBanner) with SiteNav, the #main-content landmark that the
+// skip-link in BaseLayout.astro targets, an optional Breadcrumbs trail, Footer, and
+// MobileCtaBar. Every page in src/pages/ should render through this layout rather
+// than BaseLayout directly, unless it has a documented reason not to (e.g. a future
+// fully custom landing template).
+import BaseLayout from "@layouts/BaseLayout.astro";
+import SiteNav from "@components/nav/SiteNav.astro";
+import Footer from "@components/layout/Footer.astro";
+import MobileCtaBar from "@components/layout/MobileCtaBar.astro";
+import Breadcrumbs, { type Crumb } from "@components/nav/Breadcrumbs.astro";
+
+export interface Props {
+  title: string;
+  description: string;
+  path: string;
+  ogImage?: string;
+  noindex?: boolean;
+  extraSchema?: object[];
+  navVariant?: "dark" | "light";
+  ctaLabel?: string;
+  breadcrumbs?: Crumb[];
+  showMobileCta?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  ogImage,
+  noindex = false,
+  extraSchema = [],
+  navVariant = "dark",
+  ctaLabel = "Request Production Support",
+  breadcrumbs = [],
+  showMobileCta = true,
+} = Astro.props;
+---
+
+<BaseLayout title={title} description={description} path={path} ogImage={ogImage} noindex={noindex} extraSchema={extraSchema}>
+  <SiteNav variant={navVariant} ctaLabel={ctaLabel} />
+  <main id="main-content">
+    {breadcrumbs.length > 0 && (
+      <div class="container">
+        <Breadcrumbs items={breadcrumbs} />
+      </div>
+    )}
+    <slot />
+  </main>
+  <Footer />
+  <MobileCtaBar show={showMobileCta} label={ctaLabel} />
+</BaseLayout>

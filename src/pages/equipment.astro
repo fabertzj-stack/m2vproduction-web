@@ -1,0 +1,69 @@
+---
+// Equipment page — deliberately describes CATEGORIES of equipment access rather than a
+// specific owned-gear inventory list. Which items M2V owns outright vs. sources from
+// its partner network is exactly the kind of claim the Content Rules require verifying
+// (see Phase C) — publishing a specific "RED Komodo / ARRI SkyPanel" style list without
+// confirming ownership status per item would be exactly the fabrication these rules
+// exist to prevent. Once a real, confirmed equipment inventory exists (Phase B
+// "Equipment" tab), replace the category cards below with real itemized listings.
+import PageLayout from "@layouts/PageLayout.astro";
+import ProofCard from "@components/proof/ProofCard.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { breadcrumbListSchema } from "@lib/schema";
+
+const seo = pageSeoRegistry.equipment;
+
+const categories = [
+  { title: "Camera packages", description: "Production and broadcast-grade camera packages, scaled to the shoot — from single-camera documentary setups to multi-camera commercial work." },
+  { title: "Lighting & grip", description: "Lighting and grip equipment sourced to match location conditions, from controlled interior setups to fast-moving location work." },
+  { title: "Drone", description: "Drone filming available where TCAA and, where applicable, national park clearance permits it — see our Film Fixing page for how drone permitting works." },
+  { title: "Production vehicles", description: "4x4 production vehicles for location and national park access, arranged as part of the overall logistics plan." },
+];
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  breadcrumbs={[{ label: "Equipment" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Equipment", path: "/equipment" }])]}
+>
+  <section class="section hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">Equipment</p>
+      <h1>Equipment scoped to the shoot, not a fixed list.</h1>
+      <p class="lede">
+        We source camera, lighting, grip and drone equipment through owned kit and a
+        vetted partner network, matched to what your specific production actually
+        needs — rather than a one-size list. Tell us your shoot requirements and we'll
+        confirm exactly what's available for your dates.
+      </p>
+      <a href="/film-fixing-tanzania#enquiry-form" class="btn btn-gold">Scope Your Production</a>
+    </div>
+  </section>
+
+  <section class="section section--warm">
+    <div class="container">
+      <h2 class="section-heading">What we can source</h2>
+      <div class="grid-4">
+        {categories.map((c) => (
+          <ProofCard title={c.title} description={c.description} />
+        ))}
+      </div>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-9); }
+  .hero-inner { max-width: 720px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-ink); margin-bottom: var(--space-4); }
+  h1 { font-family: var(--font-serif); font-size: 40px; line-height: 1.15; color: var(--ink); margin-bottom: var(--space-5); }
+  .lede { font-size: 16px; line-height: 1.6; color: var(--text-muted); margin-bottom: var(--space-6); max-width: 60ch; }
+  .btn { display: inline-flex; align-items: center; padding: 13px 24px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .btn-gold { background: var(--gold2); color: var(--ink); }
+  .section-heading { font-family: var(--font-serif); font-size: 28px; color: var(--ink); margin-bottom: var(--space-6); }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+  @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { h1 { font-size: 30px; } .grid-4 { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,76 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+import MediaBlock from "@components/media/MediaBlock.astro";
+import { breadcrumbListSchema } from "@lib/schema";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("journal");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"journal">;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const p = post.data;
+---
+
+<PageLayout
+  title={`${p.title} | Journal — M2VPRODUCTION`}
+  description={p.excerpt}
+  path={`/journal/${post.slug}`}
+  ogImage={p.coverImage}
+  noindex={!p.isVerified}
+  breadcrumbs={[{ label: "Journal", href: "/journal" }, { label: p.title }]}
+  extraSchema={[
+    breadcrumbListSchema([
+      { name: "Journal", path: "/journal" },
+      { name: p.title, path: `/journal/${post.slug}` },
+    ]),
+  ]}
+>
+  <article class="section">
+    <div class="container article-header">
+      {!p.isVerified && (
+        <div class="draft-notice" role="note">
+          <strong>Draft — pending fact-check.</strong> This article is excluded from
+          search indexing until its factual content has been verified against current
+          official sources.
+        </div>
+      )}
+      <p class="category">{p.category}</p>
+      <h1>{p.title}</h1>
+      <p class="excerpt">{p.excerpt}</p>
+    </div>
+    <div class="container">
+      <MediaBlock src={p.coverImage} alt={p.coverImageAlt} ratio="16/9" priority />
+    </div>
+    <div class="container prose">
+      <Content />
+    </div>
+  </article>
+</PageLayout>
+
+<style>
+  .article-header { max-width: 720px; padding-bottom: var(--space-6); }
+  .draft-notice {
+    background: #f7f3e8;
+    border: 1px dashed #c9bfa0;
+    color: #6b6552;
+    font-size: 13px;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-5);
+  }
+  .category { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-ink); margin-bottom: var(--space-3); }
+  h1 { font-family: var(--font-serif); font-size: 34px; color: var(--ink); margin-bottom: var(--space-3); }
+  .excerpt { font-size: 15px; color: var(--text-muted); }
+  .prose { max-width: 70ch; padding-block: var(--space-8); font-size: 15px; line-height: 1.75; color: var(--ink); }
+  @media (max-width: 640px) { h1 { font-size: 26px; } }
+</style>

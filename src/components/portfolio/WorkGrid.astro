@@ -1,0 +1,78 @@
+---
+// WorkGrid.astro — renders the full set of project cards server-side (so it works with
+// JS disabled and is fully crawlable/indexable — no client-side-only project list),
+// then progressively enhances with instant client-side filtering by listening for the
+// "portfolio-filter-change" event dispatched by FilterBar.astro. Each card carries
+// data-service/data-location attributes the filter script reads directly — no fetch,
+// no re-render, just show/hide.
+import ProjectCard from "./ProjectCard.astro";
+
+export interface WorkGridProject {
+  slug: string;
+  title: string;
+  service: string;
+  location: string;
+  heroImage: string;
+  heroImageAlt: string;
+  isVerified: boolean;
+}
+export interface Props {
+  projects: WorkGridProject[];
+}
+const { projects } = Astro.props;
+---
+
+<div class="work-grid" id="work-grid">
+  {projects.map((p) => (
+    <div class="grid-cell" data-service={p.service} data-location={p.location}>
+      <ProjectCard {...p} />
+    </div>
+  ))}
+</div>
+<p class="empty-state" id="work-grid-empty" hidden>No projects match these filters yet.</p>
+
+<script>
+  const grid = document.getElementById("work-grid");
+  const emptyState = document.getElementById("work-grid-empty");
+  const active: Record<string, string> = { service: "all", location: "all" };
+
+  document.addEventListener("portfolio-filter-change", (e) => {
+    const { type, value } = (e as CustomEvent).detail;
+    active[type] = value;
+    applyFilters();
+  });
+
+  function applyFilters() {
+    if (!grid) return;
+    let visibleCount = 0;
+    grid.querySelectorAll(".grid-cell").forEach((cell) => {
+      const el = cell as HTMLElement;
+      const matchesService = active.service === "all" || el.dataset.service === active.service;
+      const matchesLocation = active.location === "all" || el.dataset.location === active.location;
+      const visible = matchesService && matchesLocation;
+      el.hidden = !visible;
+      if (visible) visibleCount++;
+    });
+    if (emptyState) emptyState.hidden = visibleCount !== 0;
+  }
+</script>
+
+<style>
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+  .empty-state {
+    text-align: center;
+    padding: var(--space-8) 0;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  @media (max-width: 1024px) {
+    .work-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .work-grid { grid-template-columns: 1fr; }
+  }
+</style>

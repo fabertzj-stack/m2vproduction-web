@@ -1,0 +1,89 @@
+---
+// Timeline.astro — numbered step sequence (e.g. "How Film Fixing Works", a case study's
+// production timeline). Purely presentational; steps are process descriptions rather
+// than factual claims, so no verification gate is needed here — unlike stats/clients/
+// testimonials. If a step description references a specific fact (a fee, a duration),
+// that fact should already have been verified upstream before being passed in.
+export interface TimelineStep {
+  title: string;
+  description: string;
+  meta?: string; // e.g. "Day 1-2" or "Week 1"
+}
+export interface Props {
+  steps: TimelineStep[];
+}
+const { steps } = Astro.props;
+---
+
+<ol class="timeline">
+  {steps.map((step, i) => (
+    <li class="step">
+      <div class="marker">
+        <span class="number">{String(i + 1).padStart(2, "0")}</span>
+      </div>
+      <div class="content">
+        {step.meta && <span class="meta">{step.meta}</span>}
+        <h3>{step.title}</h3>
+        <p>{step.description}</p>
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .timeline {
+    list-style: none;
+    position: relative;
+  }
+  .step {
+    display: flex;
+    gap: var(--space-5);
+    padding-bottom: var(--space-8);
+    position: relative;
+  }
+  .step:not(:last-child) .marker::after {
+    content: "";
+    position: absolute;
+    top: 44px;
+    bottom: -8px;
+    left: 21px;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.12);
+  }
+  .marker {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--font-serif);
+    font-size: 15px;
+  }
+  .meta {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gold-ink);
+    margin-bottom: var(--space-1);
+  }
+  h3 {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    margin-bottom: var(--space-2);
+    color: var(--ink);
+  }
+  p {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: 60ch;
+  }
+</style>

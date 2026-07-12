@@ -1,0 +1,116 @@
+---
+// CookieBanner.astro — client:load-equivalent behavior via a tiny inline script,
+// no framework hydration needed. Persists choice in localStorage. See Phase 3 QA
+// report and Phase H Cookie Policy outline — this satisfies the UX requirement;
+// legal sufficiency (category-level consent vs. accept-all) is a Phase H item still
+// pending legal review.
+---
+
+<div class="cookie-banner" id="cookie-banner" role="dialog" aria-label="Cookie consent" hidden>
+  <p>
+    We use cookies to understand site traffic and improve your experience. See our
+    <a href="/legal/cookie-policy">Cookie Policy</a> for details.
+  </p>
+  <div class="actions">
+    <button type="button" class="cookie-btn cookie-decline" id="cookie-decline">Decline</button>
+    <button type="button" class="cookie-btn cookie-accept" id="cookie-accept">Accept</button>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = "m2v_cookie_consent";
+  const banner = document.getElementById("cookie-banner");
+
+  function getStoredConsent(): string | null {
+    try {
+      return localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  function setStoredConsent(value: "accepted" | "declined") {
+    try {
+      localStorage.setItem(STORAGE_KEY, value);
+    } catch {
+      /* localStorage unavailable — banner will just reappear next visit, non-fatal */
+    }
+  }
+
+  if (banner && !getStoredConsent()) {
+    banner.hidden = false;
+  }
+
+  document.getElementById("cookie-accept")?.addEventListener("click", () => {
+    setStoredConsent("accepted");
+    if (banner) banner.hidden = true;
+    // TODO: fire analytics/pixel loader here once real IDs exist (see BaseLayout.astro
+    // TODO comment and Phase F analytics plan) — e.g. window.dispatchEvent(new
+    // CustomEvent("cookie-consent-accepted")) and have the analytics loader listen for it.
+  });
+
+  document.getElementById("cookie-decline")?.addEventListener("click", () => {
+    setStoredConsent("declined");
+    if (banner) banner.hidden = true;
+  });
+</script>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--ink);
+    color: #fff;
+    padding: var(--space-5) var(--space-6);
+    z-index: var(--z-cookie-banner);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+  }
+  .cookie-banner p {
+    font-size: 12.5px;
+    color: #c7c2b6;
+    max-width: 560px;
+    line-height: 1.6;
+  }
+  .cookie-banner a {
+    color: var(--gold2);
+    text-decoration: underline;
+  }
+  .actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-shrink: 0;
+  }
+  .cookie-btn {
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border: 1px solid transparent;
+  }
+  .cookie-accept {
+    background: var(--gold2);
+    color: var(--ink);
+  }
+  .cookie-decline {
+    background: transparent;
+    color: #c7c2b6;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  @media (max-width: 640px) {
+    .cookie-banner {
+      flex-direction: column;
+      align-items: flex-start;
+      padding-bottom: 100px; /* clears the MobileCtaBar */
+    }
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+// Accordion.astro — groups AccordionItem entries. Uses the native shared `name`
+// attribute on <details> elements (supported in current Chrome/Safari/Firefox) to get
+// exclusive open/close behavior with zero JavaScript — a progressive-enhancement win
+// over the JS-toggle approach used in the original HTML prototype. Older browsers
+// without `name`-grouping support simply allow multiple items open at once, which is a
+// harmless degradation, not a broken state.
+//
+// IMPORTANT: the FAQPage JSON-LD schema for these entries is NOT generated here — the
+// calling page must build it via faqPageSchema() (src/lib/schema.ts) from the same
+// `items` array and pass it to PageLayout's extraSchema prop, so structured data and
+// visible content always match exactly.
+import AccordionItem from "./AccordionItem.astro";
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+export interface Props {
+  items: FaqItem[];
+  groupName?: string;
+}
+const { items, groupName = "faq-group" } = Astro.props;
+---
+
+<div class="accordion">
+  {items.map((item, i) => (
+    <AccordionItem question={item.question} open={i === 0} name={groupName}>
+      <p set:html={item.answer} />
+    </AccordionItem>
+  ))}
+</div>
+
+<style>
+  .accordion {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+// Portfolio index — lists ALL projects (including unverified ones, badged as
+// "Illustrative example" via ProjectCard) rather than hiding them, so the page isn't
+// empty during the pre-launch period. Once real verified projects exist, this same
+// list naturally becomes a real portfolio without any template changes.
+import { getCollection } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+import WorkGrid from "@components/portfolio/WorkGrid.astro";
+import FilterBar from "@components/portfolio/FilterBar.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { breadcrumbListSchema } from "@lib/schema";
+
+const seo = pageSeoRegistry.portfolio;
+
+const allProjects = (await getCollection("projects")).sort(
+  (a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf()
+);
+
+const projects = allProjects.map((p) => ({
+  slug: p.slug,
+  title: p.data.title,
+  service: p.data.service,
+  location: p.data.location,
+  heroImage: p.data.heroImage,
+  heroImageAlt: p.data.heroImageAlt,
+  isVerified: p.data.isVerified,
+}));
+
+const services = [...new Set(projects.map((p) => p.service))].map((s) => ({ value: s, label: s }));
+const locations = [...new Set(projects.map((p) => p.location))].map((l) => ({ value: l, label: l }));
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  breadcrumbs={[{ label: "Portfolio" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Portfolio", path: "/portfolio" }])]}
+>
+  <section class="section hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">Portfolio</p>
+      <h1>Selected production and fixing work across Tanzania.</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {projects.length > 0 ? (
+        <>
+          <FilterBar services={services} locations={locations} />
+          <div class="grid-spacer">
+            <WorkGrid projects={projects} />
+          </div>
+        </>
+      ) : (
+        <p class="pending-note">Portfolio projects are being prepared for publishing — check back soon.</p>
+      )}
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-8); }
+  .hero-inner { max-width: 640px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-ink); margin-bottom: var(--space-4); }
+  h1 { font-family: var(--font-serif); font-size: 36px; line-height: 1.15; color: var(--ink); }
+  .grid-spacer { margin-top: var(--space-6); }
+  .pending-note { font-size: 14px; color: var(--text-muted); }
+</style>

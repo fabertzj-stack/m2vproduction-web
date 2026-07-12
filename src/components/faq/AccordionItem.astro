@@ -1,0 +1,60 @@
+---
+// AccordionItem.astro — single accessible disclosure item using native <details>/
+// <summary> for zero-JS baseline functionality (progressive enhancement per Phase A/
+// Lead Technical Director requirements). Accordion.astro adds the "only one open at a
+// time" behavior on top via a tiny script; without JS every item still works standalone.
+export interface Props {
+  question: string;
+  open?: boolean;
+  name?: string;
+}
+const { question, open = false, name } = Astro.props;
+---
+
+<details class="accordion-item" open={open} name={name}>
+  <summary>
+    <span class="q">{question}</span>
+    <span class="chevron" aria-hidden="true">&#9662;</span>
+  </summary>
+  <div class="answer">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .accordion-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5) 0;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    color: var(--ink);
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .chevron {
+    flex-shrink: 0;
+    transition: transform var(--ease, 0.2s ease);
+  }
+  .accordion-item[open] .chevron {
+    transform: rotate(180deg);
+  }
+  .answer {
+    padding-bottom: var(--space-5);
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-muted);
+    max-width: 65ch;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chevron { transition: none; }
+  }
+</style>

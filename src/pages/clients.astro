@@ -1,0 +1,84 @@
+---
+// Clients page. Deliberately imports ONLY coreClients — never unconfirmedExtendedClients
+// (see siteConfig.ts comment: those six names were added during copywriting without
+// client confirmation and must never render publicly, per the Phase C audit finding).
+import PageLayout from "@layouts/PageLayout.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { breadcrumbListSchema } from "@lib/schema";
+import { coreClients } from "@data/siteConfig";
+
+const seo = pageSeoRegistry.clients;
+const verifiedClients = coreClients.filter((c) => c.verified);
+---
+
+<PageLayout
+  title={seo.title}
+  description={seo.description}
+  path={seo.path}
+  breadcrumbs={[{ label: "Clients" }]}
+  extraSchema={[breadcrumbListSchema([{ name: "Clients", path: "/clients" }])]}
+>
+  <section class="section hero">
+    <div class="container hero-inner">
+      <p class="eyebrow">Clients</p>
+      <h1>Who we've worked with.</h1>
+      <p class="lede">
+        We work with international broadcasters, agencies, NGOs and brands producing
+        film and media work across Tanzania.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {verifiedClients.length > 0 ? (
+        <ul class="client-list">
+          {verifiedClients.map((c) => (
+            <li>{c.name}</li>
+          ))}
+        </ul>
+      ) : (
+        <p class="pending-note">
+          Client names shown here require written permission before publishing —
+          that confirmation is still in progress for every name currently on file.
+          Once confirmed, they'll appear here and across the site.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <section class="section cta-band">
+    <div class="container cta-inner">
+      <h2>Considering M2V for your next production?</h2>
+      <a href="/contact" class="btn btn-gold">Contact Us</a>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero { padding-block: var(--space-9); }
+  .hero-inner { max-width: 720px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold-ink); margin-bottom: var(--space-4); }
+  h1 { font-family: var(--font-serif); font-size: 40px; line-height: 1.15; color: var(--ink); margin-bottom: var(--space-5); }
+  .lede { font-size: 16px; line-height: 1.6; color: var(--text-muted); max-width: 60ch; }
+  .client-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+    font-family: var(--font-serif);
+    font-size: 20px;
+    color: var(--ink);
+  }
+  .client-list li {
+    padding: var(--space-6);
+    background: var(--warmgrey);
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+  .pending-note { font-size: 14px; color: var(--text-muted); max-width: 60ch; }
+  .btn { display: inline-flex; align-items: center; padding: 13px 24px; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .btn-gold { background: var(--gold2); color: var(--ink); }
+  .cta-band { background: var(--ink); text-align: center; }
+  .cta-inner h2 { font-family: var(--font-serif); font-size: 26px; color: #fff; max-width: 560px; margin: 0 auto var(--space-6); }
+  @media (max-width: 640px) { h1 { font-size: 30px; } .client-list { grid-template-columns: 1fr; } }
+</style>

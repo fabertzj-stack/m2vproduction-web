@@ -1,0 +1,67 @@
+---
+// ContactCard.astro — a single contact channel card (Email, Emergency Line, WhatsApp,
+// etc.) sourced from ContactChannel entries in siteConfig.ts. Renders a "pending"
+// state instead of the raw value when unverified, so a placeholder phone number or an
+// unconfirmed WhatsApp line can never accidentally go live — this is the component the
+// Contact page uses for its channel grid.
+import type { ContactChannel } from "@data/siteConfig";
+
+export interface Props {
+  channel: ContactChannel;
+  icon?: string;
+  href?: string; // e.g. `mailto:` / `tel:` / `https://wa.me/...` — only used when verified
+}
+const { channel, href } = Astro.props;
+---
+
+<div class="contact-card">
+  <div class="icon-slot"><slot name="icon" /></div>
+  <span class="label">{channel.label}</span>
+  {channel.verified ? (
+    href ? (
+      <a class="value" href={href}>{channel.value}</a>
+    ) : (
+      <span class="value">{channel.value}</span>
+    )
+  ) : (
+    <span class="value pending" title={channel.todo}>Pending verification</span>
+  )}
+</div>
+
+<style>
+  .contact-card {
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    text-align: center;
+  }
+  .icon-slot {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto var(--space-3);
+    color: var(--gold-ink);
+  }
+  .label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: var(--space-2);
+  }
+  .value {
+    display: block;
+    font-size: 14.5px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .value.pending {
+    font-weight: 400;
+    font-style: italic;
+    color: #8a7550;
+  }
+  a.value:hover {
+    color: var(--gold-ink);
+  }
+</style>

@@ -1,0 +1,288 @@
+---
+// Homepage. Copy below follows the approved Phase 2 Round 2 direction (sharper
+// headline, social proof pulled above the fold, "Why M2V" differentiation section) but
+// was re-authored during this build session rather than pasted from the literal copy
+// deck file, which was not available in this session's context — see the Final QA
+// report for a flagged action item to diff this page against
+// M2VPRODUCTION_Phase2_Copy_Deck.docx before launch. No factual claims (stats, client
+// names, testimonials) are hardcoded here — all of that comes from siteConfig.ts /
+// content collections and is gated by `verified`.
+import { getCollection } from "astro:content";
+import PageLayout from "@layouts/PageLayout.astro";
+import StatsBand from "@components/proof/StatsBand.astro";
+import LogoStrip from "@components/proof/LogoStrip.astro";
+import ProofCard from "@components/proof/ProofCard.astro";
+import Testimonial from "@components/proof/Testimonial.astro";
+import WorkGrid from "@components/portfolio/WorkGrid.astro";
+import { pageSeoRegistry } from "@lib/seo";
+import { companyStats } from "@data/siteConfig";
+
+const seo = pageSeoRegistry.home;
+
+const allProjects = await getCollection("projects");
+const verifiedProjects = allProjects
+  .filter((p) => p.data.isVerified)
+  .sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf())
+  .slice(0, 3)
+  .map((p) => ({
+    slug: p.slug,
+    title: p.data.title,
+    service: p.data.service,
+    location: p.data.location,
+    heroImage: p.data.heroImage,
+    heroImageAlt: p.data.heroImageAlt,
+    isVerified: p.data.isVerified,
+  }));
+
+const testimonials = await getCollection("testimonials");
+const heroTestimonial = testimonials.find((t) => t.id === "homepage-testimonial");
+
+const differentiators = [
+  {
+    title: "One point of contact",
+    description:
+      "A single producer coordinates permits, crew, locations and logistics — instead of you managing separate vendors for each.",
+  },
+  {
+    title: "Permits handled end to end",
+    description:
+      "Applications, park liaison contacts and drone clearances are prepared and tracked as part of the production timeline, not left for you to chase.",
+  },
+  {
+    title: "A vetted crew network",
+    description:
+      "Camera, lighting, grip and local production assistants who already understand international broadcast and brand delivery standards.",
+  },
+  {
+    title: "Built for international workflows",
+    description:
+      "Comfortable working across time zones with international agencies, broadcasters and NGOs, in the formats and delivery specs they already use.",
+  },
+];
+
+const services = [
+  {
+    title: "Film Production",
+    description: "Commercials, documentary and broadcast-standard production for international brands.",
+    href: "/film-production",
+  },
+  {
+    title: "Corporate Media",
+    description: "Conference production, hybrid events and live streaming for NGOs, government and corporates.",
+    href: "/corporate-media",
+  },
+  {
+    title: "Film Fixing Tanzania",
+    description: "Permits, locations, crew and logistics for international crews filming in Tanzania.",
+    href: "/film-fixing-tanzania",
+  },
+];
+---
+
+<PageLayout title={seo.title} description={seo.description} path={seo.path}>
+  <section class="hero section">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Tanzania Production &amp; Film Fixing</p>
+        <h1>International productions. Local expertise, handled end to end.</h1>
+        <p class="lede">
+          M2VPRODUCTION plans, permits and produces film, documentary and corporate media
+          work across Tanzania for international broadcasters, agencies, NGOs and brands —
+          one team, one point of contact, from first enquiry to delivery.
+        </p>
+        <div class="hero-ctas">
+          <a href="/film-fixing-tanzania" class="btn btn-gold">Request Production Support</a>
+          <a href="/portfolio" class="btn btn-outline">See Our Work</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container">
+      <StatsBand stats={companyStats} />
+    </div>
+  </section>
+
+  <section class="section section--warm">
+    <div class="container">
+      <LogoStrip />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="section-heading">Why M2V instead of hiring multiple vendors</h2>
+      <p class="section-sub">
+        Most international productions filming in Tanzania piece together a fixer, a
+        crew agency and a permits contact separately. M2V is built to be all three,
+        coordinated by one producer.
+      </p>
+      <div class="grid-4">
+        {differentiators.map((d) => (
+          <ProofCard title={d.title} description={d.description} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--dark">
+    <div class="container">
+      <h2 class="section-heading light">What we do</h2>
+      <div class="grid-3">
+        {services.map((s) => (
+          <a href={s.href} class="service-card">
+            <h3>{s.title}</h3>
+            <p>{s.description}</p>
+            <span class="link-arrow">Learn more &rarr;</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {verifiedProjects.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <h2 class="section-heading">Recent work</h2>
+        <WorkGrid projects={verifiedProjects} />
+        <div class="section-cta">
+          <a href="/portfolio" class="btn btn-outline">View Full Portfolio</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {heroTestimonial && (
+    <section class="section section--warm">
+      <div class="container container-narrow">
+        <Testimonial
+          quote={heroTestimonial.data.quote}
+          attribution={heroTestimonial.data.attribution}
+          clientName={heroTestimonial.data.clientName}
+          isVerified={heroTestimonial.data.isVerified}
+          clientPermissionConfirmed={heroTestimonial.data.clientPermissionConfirmed}
+        />
+      </div>
+    </section>
+  )}
+
+  <section class="section cta-band">
+    <div class="container cta-inner">
+      <h2>Filming in Tanzania? Let's talk before you lock your schedule.</h2>
+      <a href="/film-fixing-tanzania" class="btn btn-gold">Request Production Support</a>
+    </div>
+  </section>
+</PageLayout>
+
+<style>
+  .hero {
+    padding-top: var(--space-9);
+    padding-bottom: var(--space-9);
+    background: var(--bone);
+  }
+  .hero-grid {
+    max-width: 760px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold-ink);
+    margin-bottom: var(--space-4);
+  }
+  h1 {
+    font-family: var(--font-serif);
+    font-size: 48px;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: var(--space-5);
+  }
+  .lede {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: var(--space-6);
+    max-width: 60ch;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 13px 24px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .btn-gold { background: var(--gold2); color: var(--ink); }
+  .btn-outline { border: 1px solid var(--ink); color: var(--ink); }
+
+  .section-heading {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    color: var(--ink);
+    margin-bottom: var(--space-3);
+  }
+  .section-heading.light { color: #fff; }
+  .section-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 60ch;
+    margin-bottom: var(--space-7);
+  }
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+  .service-card {
+    display: block;
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+  }
+  .service-card h3 {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    margin-bottom: var(--space-3);
+  }
+  .service-card p {
+    font-size: 13.5px;
+    color: #c7c2b6;
+    margin-bottom: var(--space-4);
+  }
+  .link-arrow { font-size: 12.5px; color: var(--gold2); font-weight: 700; }
+
+  .section-cta { margin-top: var(--space-7); text-align: center; }
+  .container-narrow { max-width: 720px; }
+
+  .cta-band { background: var(--ink); text-align: center; }
+  .cta-inner h2 {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    color: #fff;
+    max-width: 640px;
+    margin: 0 auto var(--space-6);
+  }
+
+  @media (max-width: 1024px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    h1 { font-size: 34px; }
+    .grid-4 { grid-template-columns: 1fr; }
+  }
+</style>

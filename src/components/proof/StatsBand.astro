@@ -1,0 +1,56 @@
+---
+// StatsBand.astro — renders a row of VerifiableStat entries (see src/data/siteConfig.ts).
+// Any stat with verified:false renders a muted "pending verification" treatment instead
+// of the bold number, per Content Rules — this component cannot be used to accidentally
+// ship an unconfirmed statistic looking authoritative.
+import type { VerifiableStat } from "@data/siteConfig";
+
+export interface Props {
+  stats: VerifiableStat[];
+}
+const { stats } = Astro.props;
+---
+
+<div class="stats-band">
+  {stats.map((stat) => (
+    <div class="stat">
+      {stat.verified ? (
+        <span class="value">{stat.value}</span>
+      ) : (
+        <span class="value pending" title={stat.todo}>—</span>
+      )}
+      <span class="label">{stat.label}</span>
+    </div>
+  ))}
+</div>
+
+<style>
+  .stats-band {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-6);
+    text-align: center;
+  }
+  .value {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 40px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .value.pending {
+    color: #b0a68a;
+    font-size: 32px;
+  }
+  .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-top: var(--space-2);
+  }
+  @media (max-width: 640px) {
+    .stats-band { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
