@@ -8,14 +8,20 @@ publishedDate: 2026-02-01
 isVerified: false
 ---
 
-<!--
+{/*
   TODO: this article's factual content should be drawn from
   M2VPRODUCTION_PhaseE_Tanzania_Production_Guide.docx, which was researched and sourced
   via web search (Tanzania Film Board, TANAPA, NCAA official sources — see that
   document's "Sources Consulted" section). Cross-check every figure against current
   official sources again before publishing, since permit fees and processes change.
   Set isVerified: true only after that check.
--->
+
+  NOTE: this must stay a curly-brace JS comment, not a standard HTML comment. MDX parses
+  a left angle bracket as the start of a JSX tag, so an HTML-style comment opener fails to
+  parse since an exclamation point isn't a valid character to start a tag name. This is a
+  documented MDX limitation, not a typo; see the "HTML comments" entry in the MDX
+  troubleshooting docs on mdxjs.com for the official explanation.
+*/}
 
 Full article body to be drafted from the verified Production Guide content once
 Phase C fact-checking is complete.
